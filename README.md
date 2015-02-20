@@ -25,7 +25,7 @@ sudo docker run \
   --volume /var/example:/var/mqm \
   --publish 1414:1414 \
   --detach \
-  ibmimages/mq
+  ibmimages/mqadvanced
 ~~~
 
 Note that the filesystem for the mounted volume directory (`/var/example` in the above example) must be [supported](http://www-01.ibm.com/support/knowledgecenter/SSFKSJ_8.0.0/com.ibm.mq.pla.doc/q005820_.htm?lang=en).
@@ -42,7 +42,7 @@ Note that a listener is always created on port 1414 inside the container.  This 
 The following is an *example* `Dockerfile` for creating your own pre-configured image, which adds a custom `config.mqsc` and an administrative user `alice`.  Note that it is not normally recommended to include passwords in this way:
 
 ~~~
-FROM ibmimages/mq
+FROM ibmimages/mqadvanced
 RUN useradd alice -G mqm && \
     echo alice:passw0rd | chpasswd
 COPY config.mqsc /etc/mqm/
