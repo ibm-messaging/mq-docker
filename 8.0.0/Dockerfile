@@ -12,18 +12,17 @@ MAINTAINER Arthur Barr <arthur.barr@uk.ibm.com>
 RUN export DEBIAN_FRONTEND=noninteractive && \
 	MQ_URL=http://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/messaging/mqadv/mqadv_dev80_linux_x86-64.tar.gz  && \
 	MQ_PACKAGES="MQSeriesRuntime-*.rpm MQSeriesServer-*.rpm MQSeriesMsg*.rpm MQSeriesJRE*.rpm MQSeriesGSKit*.rpm" && \
-	echo "mq:8.0.0.2" > /etc/debian_chroot && \
+	echo "mq:8.0" > /etc/debian_chroot && \
 	apt-get update -y && \
 	apt-get install -y curl tar bash rpm bc && \
 	mkdir -p /tmp/mq && \
 	cd /tmp/mq && \
 	curl -LO $MQ_URL && \
-	tar -xvf ./*.tar.gz && \
+	tar -zxvf ./*.tar.gz && \
 	groupadd --gid 1414 mqm && \
 	useradd --uid 1414 --gid mqm --home-dir /var/mqm mqm && \
-	usermod -G mqm root &&\
+	usermod -G mqm root && \
 	cd /tmp/mq/server && \
-	MQ_PACKAGES="MQSeriesRuntime-*.rpm MQSeriesServer-*.rpm MQSeriesMsg*.rpm MQSeriesJRE*.rpm MQSeriesGSKit*.rpm" && \
 	./mqlicense.sh -text_only -accept && \
 	rpm -ivh --force-debian $MQ_PACKAGES && \
 	rm -rf /tmp/mq && \
