@@ -11,7 +11,7 @@ MAINTAINER Arthur Barr <arthur.barr@uk.ibm.com>
 
 RUN export DEBIAN_FRONTEND=noninteractive && \
 	MQ_URL=http://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/messaging/mqadv/mqadv_dev80_linux_x86-64.tar.gz  && \
-	MQ_PACKAGES="MQSeriesRuntime-*.rpm MQSeriesServer-*.rpm MQSeriesMsg*.rpm MQSeriesJRE*.rpm MQSeriesGSKit*.rpm" && \
+	MQ_PACKAGES="MQSeriesRuntime-*.rpm MQSeriesServer-*.rpm MQSeriesMsg*.rpm MQSeriesJava*.rpm MQSeriesJRE*.rpm MQSeriesGSKit*.rpm" && \
 	echo "mq:8.0" > /etc/debian_chroot && \
 	apt-get update -y && \
 	apt-get install -y curl tar bash rpm bc && \
