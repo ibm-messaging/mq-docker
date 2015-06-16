@@ -31,6 +31,7 @@ config()
 		amqmfsck /var/mqm
 		echo "----------------------------------------"
 		crtmqm -q ${MQ_QMGR_NAME} || true
+		strmqm -e CMDLEVEL=${MQ_QMGR_CMDLEVEL} || true
 		echo "----------------------------------------"
 	fi
 	strmqm ${MQ_QMGR_NAME}

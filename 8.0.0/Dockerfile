@@ -35,6 +35,9 @@ COPY *.mqsc /etc/mqm/
 # Make sure the MQ environment is available for "docker exec" under non-interactive Bash
 ENV BASH_ENV=/usr/local/bin/mq-env.sh
 
+# Support the latest functional cmdlevel by default
+ENV MQ_QMGR_CMDLEVEL=801
+
 RUN chmod +x /usr/local/bin/*.sh
 
 EXPOSE 1414
