@@ -11,7 +11,7 @@ MAINTAINER Arthur Barr <arthur.barr@uk.ibm.com>
 
 RUN export DEBIAN_FRONTEND=noninteractive && \
 	MQ_URL=http://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/messaging/mqadv/mqadv_dev80_linux_x86-64.tar.gz  && \
-	MQ_PACKAGES="MQSeriesRuntime-*.rpm MQSeriesServer-*.rpm MQSeriesMsg*.rpm MQSeriesJRE*.rpm MQSeriesGSKit*.rpm" && \
+	MQ_PACKAGES="MQSeriesRuntime-*.rpm MQSeriesServer-*.rpm MQSeriesMsg*.rpm MQSeriesJava*.rpm MQSeriesJRE*.rpm MQSeriesGSKit*.rpm" && \
 	echo "mq:8.0" > /etc/debian_chroot && \
 	apt-get update -y && \
 	apt-get install -y curl tar bash rpm bc && \
@@ -34,6 +34,9 @@ COPY *.mqsc /etc/mqm/
 
 # Make sure the MQ environment is available for "docker exec" under non-interactive Bash
 ENV BASH_ENV=/usr/local/bin/mq-env.sh
+
+# Support the latest functional cmdlevel by default
+ENV MQ_QMGR_CMDLEVEL=801
 
 RUN chmod +x /usr/local/bin/*.sh
 

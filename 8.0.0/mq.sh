@@ -31,6 +31,7 @@ config()
 		amqmfsck /var/mqm
 		echo "----------------------------------------"
 		crtmqm -q ${MQ_QMGR_NAME} || true
+		strmqm -e CMDLEVEL=${MQ_QMGR_CMDLEVEL} || true
 		echo "----------------------------------------"
 	fi
 	strmqm ${MQ_QMGR_NAME}
@@ -48,23 +49,29 @@ config()
 
 state()
 {
-   dspmq -n | grep ${MQ_QMGR_NAME} | cut -f3 -d"("
+	dspmq -n -m ${MQ_QMGR_NAME} | awk -F '[()]' '{ print $4 }'
 }
 
 monitor()
 {
 	# Loop until "dspmq" says the queue manager is running
-	until [ "`state`" == "RUNNING)" ]; do
+	until [ "`state`" == "RUNNING" ]; do
 		sleep 1
 	done
 	dspmq
 
 	# Loop until "dspmq" says the queue manager is not running any more
-	until [ "`state`" != "RUNNING)" ]; do
+	until [ "`state`" != "RUNNING" ]; do
 		sleep 5
 	done
 
-	until [[ "`state`" =~ ".*(ENDED.*" ]]; do
+	# Wait until queue manager has ended before exiting
+	while true; do
+		STATE=`state`
+		case "$STATE" in
+			ENDED*) break;;
+			*) ;;
+		esac
 		sleep 1
 	done
 	dspmq
