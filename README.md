@@ -25,7 +25,7 @@ sudo docker run \
   --volume /var/example:/var/mqm \
   --publish 1414:1414 \
   --detach \
-  ibmimages/mqadvanced
+  ibmcom/mqadvanced:mqv8
 ~~~
 
 Note that the filesystem for the mounted volume directory (`/var/example` in the above example) must be [supported](http://www-01.ibm.com/support/knowledgecenter/SSFKSJ_8.0.0/com.ibm.mq.pla.doc/q005820_.htm?lang=en).
@@ -42,7 +42,7 @@ Note that a listener is always created on port 1414 inside the container.  This 
 The following is an *example* `Dockerfile` for creating your own pre-configured image, which adds a custom `config.mqsc` and an administrative user `alice`.  Note that it is not normally recommended to include passwords in this way:
 
 ~~~
-FROM ibmimages/mqadvanced
+FROM ibmcom/mqadvanced
 RUN useradd alice -G mqm && \
     echo alice:passw0rd | chpasswd
 COPY config.mqsc /etc/mqm/
@@ -84,4 +84,4 @@ For issues relating specifically to this Docker image, please use the [GitHub is
 
 # License
 
-The Dockerfile and associated scripts are licensed under the [Eclise Public License 1.0](./LICENSE). IBM MQ Advanced for Developers is licensed under the IBM International License Agreement for Non-Warranted Programs. This license may be viewed from the image using the `LICENSE=view` environment variable as described above or may be found [online](http://www14.software.ibm.com/cgi-bin/weblap/lap.pl?li_formnum=L-APIG-9BUHAE). Note that this license does not permit further distribution.
+The Dockerfile and associated scripts are licensed under the [Eclipse Public License 1.0](./LICENSE). IBM MQ Advanced for Developers is licensed under the IBM International License Agreement for Non-Warranted Programs. This license may be viewed from the image using the `LICENSE=view` environment variable as described above or may be found [online](http://www14.software.ibm.com/cgi-bin/weblap/lap.pl?li_formnum=L-APIG-9BUHAE). Note that this license does not permit further distribution.
