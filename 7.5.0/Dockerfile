@@ -10,10 +10,10 @@ FROM ubuntu:14.04
 MAINTAINER Arthur Barr <arthur.barr@uk.ibm.com>
 
 RUN export DEBIAN_FRONTEND=noninteractive && \
-	MQ_URL=http://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/messaging/mqadv/mqadv_dev80_linux_x86-64.tar.gz  && \
+	MQ_URL=http://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/messaging/mqadv/mqadv_dev75_linux_x86-64.tar.gz  && \
 	MQ_PACKAGES="MQSeriesRuntime-*.rpm MQSeriesServer-*.rpm MQSeriesMsg*.rpm MQSeriesJava*.rpm MQSeriesJRE*.rpm MQSeriesGSKit*.rpm" && \
 	DEB_MQ_PACKAGES="mqseriesruntime*deb mqseriesserver*deb mqseriesmsg*deb mqseriesjava*deb mqseriesgskit*deb" && \
-	echo "mq:8.0" > /etc/debian_chroot && \
+	echo "mq:7.5" > /etc/debian_chroot && \
 	apt-get update -y && \
 	apt-get install -y curl tar bash rpm bc alien && \
 	mkdir -p /tmp/mq && \
@@ -41,7 +41,7 @@ COPY *.mqsc /etc/mqm/
 ENV BASH_ENV=/usr/local/bin/mq-env.sh
 
 # Support the latest functional cmdlevel by default
-ENV MQ_QMGR_CMDLEVEL=801
+ENV MQ_QMGR_CMDLEVEL=750
 
 RUN chmod +x /usr/local/bin/*.sh
 
