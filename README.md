@@ -8,14 +8,19 @@ It is necessary to [configure operating settings on your Docker host](http://www
 You need to make sure that you either have a Linux kernel version of V3.16, or else you need to add the [`--ipc host`](http://docs.docker.com/reference/run/#ipc-settings) option when you run an MQ container.  The reason for this is that IBM MQ uses shared memory, and on Linux kernels prior to V3.16, containers are usually limited to 32 MB of shared memory.  In a [change](https://git.kernel.org/cgit/linux/kernel/git/mhocko/mm.git/commit/include/uapi/linux/shm.h?id=060028bac94bf60a65415d1d55a359c3a17d5c31
 ) to Linux kernel V3.16, the hard-coded limit is greatly increased.  This kernel version is available in Ubuntu 14.04.2 onwards, Fedora V20 onwards, and boot2docker V1.2 onwards.  If you are using a host with an older kernel version, but Docker version 1.4 or newer, then you can still run MQ, but you have to give it access to the host's IPC namespace using the [`--ipc host`](http://docs.docker.com/reference/run/#ipc-settings) option on `docker run`.  Note that this reduces the security isolation of your container.  Using the host's IPC namespace is a temporary workaround, and you should not attempt shared-memory connections to queue managers from outside the container.
 
-# Usage
+# Build
+After extracting the code from this repository, you can build the image using the following command:
 
+~~~
+sudo docker build --tag mq-for-developers ./8.0.0/
+~~~
+
+# Usage
 In order to use the image, it is necessary to accept the terms of the IBM MQ for Developers license.  This is achieved by specifying the environment variable `LICENSE` equal to `accept` when running the image.  You can also view the license terms by setting this variable to `view`. Failure to set the variable will result in the termination of the container with a usage statement.  You can view the license in a different language by also setting the `LANG` environment variable.
 
 This image is primarily intended to be used as an example base image for your own MQ images.
 
 ## Running with the default configuration
-
 You can run a queue manager with the default configuration and a listener on port 1414 using the following command.  Note that the default configuration is locked-down from a security perspective, so you will need to customize the configuration in order to effectively use the queue manager.  For example, the following command creates and starts a queue manager called `QM1`, and maps port 1414 on the host to the MQ listener on port 1414 inside the container:
 
 ~~~
@@ -25,13 +30,14 @@ sudo docker run \
   --volume /var/example:/var/mqm \
   --publish 1414:1414 \
   --detach \
-  ibmcom/mqadvanced:mqv8
+  mq-for-developers
 ~~~
 
-Note that the filesystem for the mounted volume directory (`/var/example` in the above example) must be [supported](http://www-01.ibm.com/support/knowledgecenter/SSFKSJ_8.0.0/com.ibm.mq.pla.doc/q005820_.htm?lang=en).
+Note that in this example, the name "mq-for-developers" is the image tag you used in the previous build step.
+
+Also note that the filesystem for the mounted volume directory (`/var/example` in the above example) must be [supported](http://www-01.ibm.com/support/knowledgecenter/SSFKSJ_8.0.0/com.ibm.mq.pla.doc/q005820_.htm?lang=en).
 
 ## Customizing the queue manager configuration
-
 You can customize the configuration in several ways:
 
 1. By creating your own image and adding your an MQSC file called `/etc/mqm/config.mqsc`.  This file will be run when your queue manager is created.
@@ -42,7 +48,7 @@ Note that a listener is always created on port 1414 inside the container.  This 
 The following is an *example* `Dockerfile` for creating your own pre-configured image, which adds a custom `config.mqsc` and an administrative user `alice`.  Note that it is not normally recommended to include passwords in this way:
 
 ~~~
-FROM ibmcom/mqadvanced
+FROM mq-for-developers
 RUN useradd alice -G mqm && \
     echo alice:passw0rd | chpasswd
 COPY config.mqsc /etc/mqm/
@@ -60,7 +66,6 @@ REFRESH SECURITY TYPE(CONNAUTH)
 ~~~
 
 ## Running MQ commands
-
 It is recommended that you configure MQ in your own custom image.  However, you may need to run MQ commands directly inside the process space of the container.  To run a command against a running queue manager, you can use `docker exec`.  If you run commands non-interactively under Bash, then the MQ environment will be configured correctly for you.  For example:
 
 ~~~
