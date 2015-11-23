@@ -22,7 +22,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
 	groupadd --gid 1414 mqm && \
 	useradd --uid 1414 --gid mqm --home-dir /var/mqm mqm && \
 	usermod -G mqm root && \
-	cd /tmp/mq/server && \
+	cd /tmp/mq/MQServer && \
 	./mqlicense.sh -text_only -accept && \
 	rpm -ivh --force-debian $MQ_PACKAGES && \
 	rm -rf /tmp/mq && \
