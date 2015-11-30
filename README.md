@@ -33,7 +33,7 @@ sudo docker run \
   mq
 ~~~
 
-Note that in this example, the name "mq-for-developers" is the image tag you used in the previous build step.
+Note that in this example, the name "mq" is the image tag you used in the previous build step.
 
 Also note that the filesystem for the mounted volume directory (`/var/example` in the above example) must be [supported](http://www-01.ibm.com/support/knowledgecenter/SSFKSJ_8.0.0/com.ibm.mq.pla.doc/q005820_.htm?lang=en).
 
