@@ -30,8 +30,8 @@ RUN export DEBIAN_FRONTEND=noninteractive \
   && curl -LO $MQ_URL \
   && tar -zxvf ./*.tar.gz \
   # Recommended: Create the mqm user ID with a fixed UID and group, so that the file permissions work between different images
-  && groupadd --gid 1414 mqm \
-  && useradd --uid 1414 --gid mqm --home-dir /var/mqm mqm \
+  && groupadd --gid 1000 mqm \
+  && useradd --uid 1000 --gid mqm --home-dir /var/mqm mqm \
   && usermod -G mqm root \
   && cd /tmp/mq/MQServer \
   # Accept the MQ license
