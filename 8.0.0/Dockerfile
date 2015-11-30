@@ -30,15 +30,13 @@ RUN export DEBIAN_FRONTEND=noninteractive \
   && cd /tmp/mq/MQServer \
   && ./mqlicense.sh -text_only -accept \
   && rpm -ivh --force-debian $MQ_PACKAGES \
+  && /opt/mqm/bin/setmqinst -p /opt/mqm -i \
   && rm -rf /tmp/mq \
   # Bypass defect in the "mqconfig" script
   && sed -i -e "s;CheckShellDefaultOptions$;#CheckShellDefaultOptions;g" /opt/mqm/bin/mqconfig
 
 COPY *.sh /usr/local/bin/
 COPY *.mqsc /etc/mqm/
-
-# Make sure the MQ environment is available for "docker exec" under non-interactive Bash
-ENV BASH_ENV=/usr/local/bin/mq-env.sh
 
 # Support the latest functional cmdlevel by default
 ENV MQ_QMGR_CMDLEVEL=801
