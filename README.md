@@ -30,7 +30,7 @@ sudo docker run \
   --volume /var/example:/var/mqm \
   --publish 1414:1414 \
   --detach \
-  mq-for-developers
+  mq
 ~~~
 
 Note that in this example, the name "mq-for-developers" is the image tag you used in the previous build step.
