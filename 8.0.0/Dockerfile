@@ -39,7 +39,7 @@ COPY *.sh /usr/local/bin/
 COPY *.mqsc /etc/mqm/
 
 # Support the latest functional cmdlevel by default
-ENV MQ_QMGR_CMDLEVEL=801
+ENV MQ_QMGR_CMDLEVEL=802
 
 RUN chmod +x /usr/local/bin/*.sh
 
