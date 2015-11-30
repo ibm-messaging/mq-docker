@@ -1,6 +1,6 @@
 # Overview
 
-This image contains [IBM MQ Advanced for Developers](http://www-03.ibm.com/software/products/en/ibm-mq-advanced-for-developers).  The Dockerfile for this image can be found on the [ibm-messaging GitHub](http://github.com/ibm-messaging/mq-docker).  This is currently a **technical preview** and IBM would [welcome feedback](#issues-and-contributions).
+Run [IBM® MQ](http://www-03.ibm.com/software/products/en/ibm-mq) in a Docker container.  By default, the supplied Dockerfile runs [IBM MQ for Developers](http://www-03.ibm.com/software/products/en/ibm-mq-advanced-for-developers), but also works for IBM MQ.  The source can be found on the [ibm-messaging GitHub](http://github.com/ibm-messaging/mq-docker).
 
 # Preparing your Docker host
 It is necessary to [configure operating settings on your Docker host](http://www-01.ibm.com/support/knowledgecenter/SSFKSJ_8.0.0/com.ibm.mq.ins.doc/q008550_.htm?lang=en), to allow IBM MQ access to the resources it needs.  This covers things like maximum file handles, which are governed by the Docker host, and not containers.  If the host is configured incorrectly, the container will terminate with a message about what has failed.
@@ -12,11 +12,11 @@ You need to make sure that you either have a Linux kernel version of V3.16, or e
 After extracting the code from this repository, you can build the image using the following command:
 
 ~~~
-sudo docker build --tag mq-for-developers ./8.0.0/
+sudo docker build --tag mq ./8.0.0/
 ~~~
 
 # Usage
-In order to use the image, it is necessary to accept the terms of the IBM MQ for Developers license.  This is achieved by specifying the environment variable `LICENSE` equal to `accept` when running the image.  You can also view the license terms by setting this variable to `view`. Failure to set the variable will result in the termination of the container with a usage statement.  You can view the license in a different language by also setting the `LANG` environment variable.
+In order to use the image, it is necessary to accept the terms of the IBM MQ license.  This is achieved by specifying the environment variable `LICENSE` equal to `accept` when running the image.  You can also view the license terms by setting this variable to `view`. Failure to set the variable will result in the termination of the container with a usage statement.  You can view the license in a different language by also setting the `LANG` environment variable.
 
 This image is primarily intended to be used as an example base image for your own MQ images.
 
@@ -48,7 +48,7 @@ Note that a listener is always created on port 1414 inside the container.  This 
 The following is an *example* `Dockerfile` for creating your own pre-configured image, which adds a custom `config.mqsc` and an administrative user `alice`.  Note that it is not normally recommended to include passwords in this way:
 
 ~~~
-FROM mq-for-developers
+FROM mq
 RUN useradd alice -G mqm && \
     echo alice:passw0rd | chpasswd
 COPY config.mqsc /etc/mqm/
@@ -81,7 +81,7 @@ Using this technique, you can have full control over all aspects of the MQ insta
 
 ## Installed components
 
-This image includes the core MQ server, language packs, and GSKit.  If you want to install other features, such as Managed File Transfer, the Telemetry Service, or Advanced Message Security, then you will need to re-build your own Docker image, using the example provided on the [ibm-messaging GitHub](http://github.com/ibm-messaging/mq-docker).  See the [MQ documentation](http://www-01.ibm.com/support/knowledgecenter/SSFKSJ_8.0.0/com.ibm.mq.ins.doc/q008350_.htm?lang=en) for details of which RPMs to choose.
+This image includes the core MQ server, Java, language packs, and GSKit.  Other features (except the client) are not currently supported running in Docker.  See the [MQ documentation](http://www-01.ibm.com/support/knowledgecenter/SSFKSJ_8.0.0/com.ibm.mq.ins.doc/q008350_.htm?lang=en) for details of which RPMs to choose.
 
 # Issues and contributions
 
