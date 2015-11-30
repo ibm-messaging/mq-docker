@@ -66,14 +66,14 @@ REFRESH SECURITY TYPE(CONNAUTH)
 ~~~
 
 ## Running MQ commands
-It is recommended that you configure MQ in your own custom image.  However, you may need to run MQ commands directly inside the process space of the container.  To run a command against a running queue manager, you can use `docker exec`.  If you run commands non-interactively under Bash, then the MQ environment will be configured correctly for you.  For example:
+It is recommended that you configure MQ in your own custom image.  However, you may need to run MQ commands directly inside the process space of the container.  To run a command against a running queue manager, you can use `docker exec`, for example:
 
 ~~~
 sudo docker exec \
   --tty \
   --interactive \
   ${CONTAINER_ID} \
-  bash -c dspmq
+  dspmq
 ~~~
 
 Using this technique, you can have full control over all aspects of the MQ installation.  Note that if you use this technique to make changes to the filesystem, then those changes would be lost if you re-created your container unless you make those changes in volumes.
