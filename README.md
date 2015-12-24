@@ -83,6 +83,14 @@ Using this technique, you can have full control over all aspects of the MQ insta
 
 This image includes the core MQ server, Java, language packs, and GSKit.  Other features (except the client) are not currently supported running in Docker.  See the [MQ documentation](http://www-01.ibm.com/support/knowledgecenter/SSFKSJ_8.0.0/com.ibm.mq.ins.doc/q008350_.htm?lang=en) for details of which RPMs to choose.
 
+# Troubleshooting
+
+## `mqconfig` fails
+When the container starts, it runs `mqconfig` to check the environment is OK.  IBM MQ requires some kernel parameters to be set to particular values, which are not the default on many systems.  You can fix this by issuing `sysctl` commands to configure the kernel.  For example, to set the maximum number of open files, use `sysctl fs.file-max=524288`.  See the section on "Preparing your Docker host" above for more details.
+
+## AMQ7017: Log not available
+If you see this message in the container logs, it means that the directory being used for the container's volume doesn't use a filesystem supported by IBM MQ.  This often happens when using Docker Toolbox or boot2docker, which use `tmpfs` for the `/var` directory.  To solve this, you need to make sure the container's `/var/mqm` volume is put on a supported filesystem.  For example, with Docker Toolbox try using a directory under `/mnt/sda1`.  You can list filesystem types using the command `df -T`
+
 # Issues and contributions
 
 For issues relating specifically to this Docker image, please use the [GitHub issue tracker](https://github.com/ibm-messaging/mq-docker/issues). For more general issues relating to IBM MQ or to discuss the Docker technical preview, please use the [messaging community](https://developer.ibm.com/answers/?community=messaging). If you do submit a Pull Request related to this Docker image, please indicate in the Pull Request that you accept and agree to be bound by the terms of the [IBM Contributor License Agreement](CLA.md).
