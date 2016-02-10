@@ -85,6 +85,13 @@ This image includes the core MQ server, Java, language packs, and GSKit.  Other 
 
 # Troubleshooting
 
+## Container command not found or does not exist
+This message also appears as "System error: no such file or directory" in some versions of Docker.  This can happen using Docker Toolbox on Windows, and is related to line-ending characters.  When you clone the Git repository on Windows, Git is often configured to convert any UNIX-style LF line-endings to Windows-style CRLF line-endings.  Files with these line-endings end up in the built Docker image, and cause the container to fail at start-up.  One solution to this problem is to stop Git from converting the line-ending characters, with the following command:
+
+~~~
+git config --global core.autocrlf input
+~~~
+
 ## `mqconfig` fails
 When the container starts, it runs `mqconfig` to check the environment is OK.  IBM MQ requires some kernel parameters to be set to particular values, which are not the default on many systems.  You can fix this by issuing `sysctl` commands to configure the kernel.  For example, to set the maximum number of open files, use `sysctl fs.file-max=524288`.  See the section on "Preparing your Docker host" above for more details.
 
