@@ -11,9 +11,9 @@ You need to make sure that you either have a Linux kernel version of V3.16, or e
 # Build
 After extracting the code from this repository, you can build the image using the following command:
 
-~~~
+```
 sudo docker build --tag mq ./8.0.0/
-~~~
+```
 
 # Usage
 In order to use the image, it is necessary to accept the terms of the IBM MQ license.  This is achieved by specifying the environment variable `LICENSE` equal to `accept` when running the image.  You can also view the license terms by setting this variable to `view`. Failure to set the variable will result in the termination of the container with a usage statement.  You can view the license in a different language by also setting the `LANG` environment variable.
@@ -23,7 +23,7 @@ This image is primarily intended to be used as an example base image for your ow
 ## Running with the default configuration
 You can run a queue manager with the default configuration and a listener on port 1414 using the following command.  Note that the default configuration is locked-down from a security perspective, so you will need to customize the configuration in order to effectively use the queue manager.  For example, the following command creates and starts a queue manager called `QM1`, and maps port 1414 on the host to the MQ listener on port 1414 inside the container:
 
-~~~
+```
 sudo docker run \
   --env LICENSE=accept \
   --env MQ_QMGR_NAME=QM1 \
@@ -31,7 +31,7 @@ sudo docker run \
   --publish 1414:1414 \
   --detach \
   mq
-~~~
+```
 
 Note that in this example, the name "mq" is the image tag you used in the previous build step.
 
@@ -47,34 +47,34 @@ Note that a listener is always created on port 1414 inside the container.  This 
 
 The following is an *example* `Dockerfile` for creating your own pre-configured image, which adds a custom `config.mqsc` and an administrative user `alice`.  Note that it is not normally recommended to include passwords in this way:
 
-~~~
+```dockerfile
 FROM mq
 RUN useradd alice -G mqm && \
     echo alice:passw0rd | chpasswd
 COPY config.mqsc /etc/mqm/
-~~~
+```
 
 Here is an example corresponding `config.mqsc` script from the [mqdev blog](https://www.ibm.com/developerworks/community/blogs/messaging/entry/getting_going_without_turning_off_mq_security?lang=en), which allows users with passwords to connect on the `PASSWORD.SVRCONN` channel:
 
-~~~
+```
 DEFINE CHANNEL(PASSWORD.SVRCONN) CHLTYPE(SVRCONN)
 SET CHLAUTH(PASSWORD.SVRCONN) TYPE(BLOCKUSER) USERLIST('nobody') DESCR('Allow privileged users on this channel')
 SET CHLAUTH('*') TYPE(ADDRESSMAP) ADDRESS('*') USERSRC(NOACCESS) DESCR('BackStop rule')
 SET CHLAUTH(PASSWORD.SVRCONN) TYPE(ADDRESSMAP) ADDRESS('*') USERSRC(CHANNEL) CHCKCLNT(REQUIRED)
 ALTER AUTHINFO(SYSTEM.DEFAULT.AUTHINFO.IDPWOS) AUTHTYPE(IDPWOS) ADOPTCTX(YES)
 REFRESH SECURITY TYPE(CONNAUTH)
-~~~
+```
 
 ## Running MQ commands
 It is recommended that you configure MQ in your own custom image.  However, you may need to run MQ commands directly inside the process space of the container.  To run a command against a running queue manager, you can use `docker exec`, for example:
 
-~~~
+```
 sudo docker exec \
   --tty \
   --interactive \
   ${CONTAINER_ID} \
   dspmq
-~~~
+```
 
 Using this technique, you can have full control over all aspects of the MQ installation.  Note that if you use this technique to make changes to the filesystem, then those changes would be lost if you re-created your container unless you make those changes in volumes.
 
@@ -88,9 +88,9 @@ This image includes the core MQ server, Java, language packs, and GSKit.  Other 
 ## Container command not found or does not exist
 This message also appears as "System error: no such file or directory" in some versions of Docker.  This can happen using Docker Toolbox on Windows, and is related to line-ending characters.  When you clone the Git repository on Windows, Git is often configured to convert any UNIX-style LF line-endings to Windows-style CRLF line-endings.  Files with these line-endings end up in the built Docker image, and cause the container to fail at start-up.  One solution to this problem is to stop Git from converting the line-ending characters, with the following command:
 
-~~~
+```
 git config --global core.autocrlf input
-~~~
+```
 
 ## `mqconfig` fails
 When the container starts, it runs `mqconfig` to check the environment is OK.  IBM MQ requires some kernel parameters to be set to particular values, which are not the default on many systems.  You can fix this by issuing `sysctl` commands to configure the kernel.  For example, to set the maximum number of open files, use `sysctl fs.file-max=524288`.  See the section on "Preparing your Docker host" above for more details.
