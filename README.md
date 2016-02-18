@@ -104,4 +104,4 @@ For issues relating specifically to this Docker image, please use the [GitHub is
 
 # License
 
-The Dockerfile and associated scripts are licensed under the [Eclipse Public License 1.0](./LICENSE). IBM MQ Advanced for Developers is licensed under the IBM International License Agreement for Non-Warranted Programs. This license may be viewed from the image using the `LICENSE=view` environment variable as described above or may be found [online](http://www14.software.ibm.com/cgi-bin/weblap/lap.pl?li_formnum=L-APIG-9BUHAE). Note that this license does not permit further distribution.
+The Dockerfile and associated scripts are licensed under the [Apache License 2.0](./LICENSE). IBM MQ Advanced for Developers is licensed under the IBM International License Agreement for Non-Warranted Programs. This license may be viewed from the image using the `LICENSE=view` environment variable as described above or may be found [online](http://www14.software.ibm.com/cgi-bin/weblap/lap.pl?li_formnum=L-APIG-9BUHAE). Note that this license does not permit further distribution.
