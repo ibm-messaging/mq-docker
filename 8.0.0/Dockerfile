@@ -61,7 +61,7 @@ RUN chmod +x /usr/local/bin/*.sh
 # Always use port 1414 (the Docker administrator can re-map ports at runtime)
 EXPOSE 1414
 
-# Always put the MQ data directory is in a Docker volume
+# Always put the MQ data directory in a Docker volume
 VOLUME /var/mqm
 
 ENTRYPOINT ["mq.sh"]
