@@ -15,6 +15,7 @@
 # limitations under the License.
 
 NETWORK=mqtest
+IMAGE=${1:-"mq:9"}
 set -x
 # Build a container image with the tests
 docker build -t mq-docker-test .
@@ -29,7 +30,8 @@ docker run \
   --name mq-docker-test \
   --volume /var/run/docker.sock:/var/run/docker.sock \
   --net ${NETWORK} \
-  --env NETWORK=${NETWORK} \
+  --env DOCKER_NETWORK=${NETWORK} \
+  --env DOCKER_IMAGE=$1 \
   mq-docker-test
 # Clean up the network
 docker network rm ${NETWORK}

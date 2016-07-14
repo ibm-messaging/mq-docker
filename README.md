@@ -3,8 +3,6 @@
 Run [IBM® MQ](http://www-03.ibm.com/software/products/en/ibm-mq) in a Docker container.  By default, the supplied Dockerfile runs [IBM MQ for Developers](http://www-03.ibm.com/software/products/en/ibm-mq-advanced-for-developers), but also works for IBM MQ.  The source can be found on the [ibm-messaging GitHub](http://github.com/ibm-messaging/mq-docker).  There's also a short [demo video](https://www.youtube.com/watch?v=BoomAVqk0cI) available.
 
 # Preparing your Docker host
-It is necessary to [configure operating settings on your Docker host](http://www-01.ibm.com/support/knowledgecenter/SSFKSJ_8.0.0/com.ibm.mq.ins.doc/q008550_.htm?lang=en), to allow IBM MQ access to the resources it needs.  This covers things like maximum file handles, which are governed by the Docker host, and not containers.  If the host is configured incorrectly, the container will terminate with a message about what has failed.
-
 You need to make sure that you either have a Linux kernel version of V3.16, or else you need to add the [`--ipc host`](http://docs.docker.com/reference/run/#ipc-settings) option when you run an MQ container.  The reason for this is that IBM MQ uses shared memory, and on Linux kernels prior to V3.16, containers are usually limited to 32 MB of shared memory.  In a [change](https://git.kernel.org/cgit/linux/kernel/git/mhocko/mm.git/commit/include/uapi/linux/shm.h?id=060028bac94bf60a65415d1d55a359c3a17d5c31
 ) to Linux kernel V3.16, the hard-coded limit is greatly increased.  This kernel version is available in Ubuntu 14.04.2 onwards, Fedora V20 onwards, and boot2docker V1.2 onwards.  If you are using a host with an older kernel version, but Docker version 1.4 or newer, then you can still run MQ, but you have to give it access to the host's IPC namespace using the [`--ipc host`](http://docs.docker.com/reference/run/#ipc-settings) option on `docker run`.  Note that this reduces the security isolation of your container.  Using the host's IPC namespace is a temporary workaround, and you should not attempt shared-memory connections to queue managers from outside the container.
 
@@ -12,7 +10,13 @@ You need to make sure that you either have a Linux kernel version of V3.16, or e
 After extracting the code from this repository, you can build the image using the following command:
 
 ```
-sudo docker build --tag mq ./8.0.0/
+sudo docker build --tag mq ./server/
+```
+
+To build alternative versions, you can use commands similar to the following:
+
+```
+sudo docker build --tag mq:8 --file ./server/Dockerfile-mq8 ./server/
 ```
 
 # Usage
@@ -81,7 +85,7 @@ Using this technique, you can have full control over all aspects of the MQ insta
 
 ## Installed components
 
-This image includes the core MQ server, Java, language packs, and GSKit.  Other features (except the client) are not currently supported running in Docker.  See the [MQ documentation](http://www-01.ibm.com/support/knowledgecenter/SSFKSJ_8.0.0/com.ibm.mq.ins.doc/q008350_.htm?lang=en) for details of which RPMs to choose.
+This image includes the core MQ server, Java, language packs, and GSKit.  Other features (except the client) are not currently supported running in Docker.  See the [MQ documentation](http://www.ibm.com/support/knowledgecenter/en/SSFKSJ_9.0.0/com.ibm.mq.ins.doc/q008350_.htm) for details of which RPMs to choose.
 
 # Troubleshooting
 
