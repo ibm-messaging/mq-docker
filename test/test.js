@@ -19,28 +19,32 @@ const assert = require('chai').assert;
 const net = require('net');
 
 // Pre-requisites for running this test:
-//   * Docker image called "mq" with MQ installed
 //   * Docker network created
-//   * Environment variable called NETWORK with the name of the network
+//   * Env. variable called DOCKER_NETWORK with the name of the network
+//   * Env. variable called DOCKER_IMAGE with the name of the image to test
+
+const DOCKER_NETWORK = process.env.DOCKER_NETWORK;
+const DOCKER_IMAGE = process.env.DOCKER_IMAGE;
 
 describe('MQ Docker sample', function() {
   describe('when launching container', function () {
     this.timeout(3000);
     it('should display the license when LICENSE=view', function (done) {
-      exec("docker run --rm --env LICENSE=view mq", function (err, stdout, stderr) {
+      console.log(`docker run --rm --env LICENSE=view ${DOCKER_IMAGE}`);
+      exec(`docker run --rm --env LICENSE=view ${DOCKER_IMAGE}`, function (err, stdout, stderr) {
         assert.equal(err.code, 1);
         assert.isTrue(stdout.includes("terms"));
         done();
       });
     });
     it('should fail if LICENSE is not set', function (done) {
-      exec("docker run --rm mq", function (err, stdout, stderr) {
+      exec(`docker run --rm  ${DOCKER_IMAGE}`, function (err, stdout, stderr) {
         assert.equal(err.code, 1);
         done();
       });
     });
     it('should fail if MQ_QMGR_NAME is not set', function (done) {
-      exec("docker run --rm --env LICENSE=accept mq", function (err, stdout, stderr) {
+      exec(`docker run --rm --env LICENSE=accept  ${DOCKER_IMAGE}`, function (err, stdout, stderr) {
         assert.equal(err.code, 1);
         assert.isTrue(stderr.includes("ERROR"));
         done();
@@ -52,11 +56,10 @@ describe('MQ Docker sample', function() {
     var containerId = null;
     var containerAddr = null;
     const QMGR_NAME = "foo";
-    const NETWORK = process.env.NETWORK;
 
     beforeEach(function(done) {
       this.timeout(10000);
-      exec(`docker run -d --env LICENSE=accept --env MQ_QMGR_NAME=${QMGR_NAME} --net ${NETWORK} mq`, function (err, stdout, stderr) {
+      exec(`docker run -d --env LICENSE=accept --env MQ_QMGR_NAME=${QMGR_NAME} --net ${DOCKER_NETWORK} ${DOCKER_IMAGE}`, function (err, stdout, stderr) {
         if (err) throw err;
         containerId = stdout.trim();
         // Run dspmq every second, until the queue manager comes up
@@ -66,7 +69,7 @@ describe('MQ Docker sample', function() {
             if (stdout && stdout.includes("RUNNING")) {
               // Queue manager is up, so clear the timer
               clearInterval(timer);
-              exec(`docker inspect --format '{{ .NetworkSettings.Networks.${NETWORK}.IPAddress }}' ${containerId}`, function (err, stdout, stderr) {
+              exec(`docker inspect --format '{{ .NetworkSettings.Networks.${DOCKER_NETWORK}.IPAddress }}' ${containerId}`, function (err, stdout, stderr) {
                 if (err) throw err;
                 containerAddr = stdout.trim();
                 done();

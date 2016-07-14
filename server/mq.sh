@@ -28,8 +28,6 @@ config()
 	echo "----------------------------------------"
 	dspmqver
 	echo "----------------------------------------"
-	mqconfig || (echo -e "\nERROR: mqconfig returned a non-zero return code" 1>&2 ; exit 1)
-	echo "----------------------------------------"
 
 	QMGR_EXISTS=`dspmq | grep ${MQ_QMGR_NAME} > /dev/null ; echo $?`
 	if [ ${QMGR_EXISTS} -ne 0 ]; then
