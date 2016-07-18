@@ -48,7 +48,8 @@ RUN export DEBIAN_FRONTEND=noninteractive \
   # Recommended: Set the default MQ installation (makes the MQ commands available on the PATH)
   && /opt/mqm/bin/setmqinst -p /opt/mqm -i \
   # Clean up all the downloaded files
-  && rm -rf /tmp/mq
+  && rm -rf /tmp/mq \
+  && rm -rf /var/lib/apt/lists/*
 
 COPY *.sh /usr/local/bin/
 COPY *.mqsc /etc/mqm/
