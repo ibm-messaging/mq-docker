@@ -62,7 +62,4 @@ EXPOSE 1414
 # Always put the MQ data directory in a Docker volume
 VOLUME /var/mqm
 
-# Run MQ and health-checking script as the "mqm" user
-USER mqm
-
 ENTRYPOINT ["mq.sh"]
