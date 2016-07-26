@@ -35,10 +35,10 @@ config()
 		amqmfsck /var/mqm
 		echo "----------------------------------------"
 		crtmqm -q ${MQ_QMGR_NAME} || true
-                if [ ${MQ_QMGR_CMDLEVEL+x} ]; then
-                        # Enables the specified command level, then stops the queue manager
+		if [ ${MQ_QMGR_CMDLEVEL+x} ]; then
+			# Enables the specified command level, then stops the queue manager
 			strmqm -e CMDLEVEL=${MQ_QMGR_CMDLEVEL} || true
-                fi
+		fi
 		echo "----------------------------------------"
 	fi
 	strmqm ${MQ_QMGR_NAME}
