@@ -16,6 +16,8 @@ FROM ubuntu:14.04
 
 MAINTAINER Arthur Barr <arthur.barr@uk.ibm.com>
 
+ENV AMQ_MQS_INI_LOCATION /var/mqm/qmgrs/mqs.ini
+
 RUN export DEBIAN_FRONTEND=noninteractive \
   # The URL to download the MQ installer from in tar.gz format
   && MQ_URL=http://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/messaging/mqadv/mqadv_dev90_linux_x86-64.tar.gz \
@@ -59,7 +61,10 @@ RUN chmod +x /usr/local/bin/*.sh
 # Always use port 1414 (the Docker administrator can re-map ports at runtime)
 EXPOSE 1414
 
-# Always put the MQ data directory in a Docker volume
-VOLUME /var/mqm
+# Always put the MQ qmgr and log directories in a Docker volume.
+VOLUME /var/mqm/qmgrs
+VOLUME /var/mqm/log
+VOLUME /var/mqm/errors
+VOLUME /var/mqm/trace
 
 ENTRYPOINT ["mq.sh"]

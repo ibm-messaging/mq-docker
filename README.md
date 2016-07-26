@@ -37,7 +37,10 @@ You can run a queue manager with the default configuration and a listener on por
 sudo docker run \
   --env LICENSE=accept \
   --env MQ_QMGR_NAME=QM1 \
-  --volume /var/example:/var/mqm \
+  --volume /var/example/qmgrs:/var/mqm/qmgrs \
+  --volume /var/example/log:/var/mqm/log \
+  --volume /var/example/errors:/var/mqm/errors \
+  --volume /var/example/trace:/var/mqm/trace \
   --publish 1414:1414 \
   --detach \
   mq
@@ -45,7 +48,7 @@ sudo docker run \
 
 Note that in this example, the name "mq" is the image tag you used in the previous build step.
 
-Also note that the filesystem for the mounted volume directory (`/var/example` in the above example) must be [supported](http://www-01.ibm.com/support/knowledgecenter/SSFKSJ_8.0.0/com.ibm.mq.pla.doc/q005820_.htm?lang=en).
+Also note that the filesystem for each mounted volume directory (`/var/example` in the above example) must be [supported](http://www-01.ibm.com/support/knowledgecenter/SSFKSJ_8.0.0/com.ibm.mq.pla.doc/q005820_.htm?lang=en).
 
 ## Customizing the queue manager configuration
 You can customize the configuration in several ways:
