@@ -23,6 +23,10 @@ stop()
 
 config()
 {
+	touch /var/mqm/qmgrs/mqs.ini
+        chown mqm:mqm /var/mqm/qmgrs/mqs.ini
+        chmod 664 /var/mqm/qmgrs/mqs.ini
+
 	: ${MQ_QMGR_NAME?"ERROR: You need to set the MQ_QMGR_NAME environment variable"}
 	source /opt/mqm/bin/setmqenv -s
 	echo "----------------------------------------"
