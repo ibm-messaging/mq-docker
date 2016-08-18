@@ -18,76 +18,76 @@ set -e
 
 stop()
 {
-	endmqm $MQ_QMGR_NAME
+  endmqm $MQ_QMGR_NAME
 }
 
 config()
 {
-	: ${MQ_QMGR_NAME?"ERROR: You need to set the MQ_QMGR_NAME environment variable"}
-	source /opt/mqm/bin/setmqenv -s
-	echo "----------------------------------------"
-	dspmqver
-	echo "----------------------------------------"
+  : ${MQ_QMGR_NAME?"ERROR: You need to set the MQ_QMGR_NAME environment variable"}
+  source /opt/mqm/bin/setmqenv -s
+  echo "----------------------------------------"
+  dspmqver
+  echo "----------------------------------------"
 
-	QMGR_EXISTS=`dspmq | grep ${MQ_QMGR_NAME} > /dev/null ; echo $?`
-	if [ ${QMGR_EXISTS} -ne 0 ]; then
-		echo "Checking filesystem..."
-		amqmfsck /var/mqm
-		echo "----------------------------------------"
-		crtmqm -q ${MQ_QMGR_NAME} || true
-                if [ ${MQ_QMGR_CMDLEVEL+x} ]; then
-                        # Enables the specified command level, then stops the queue manager
-			strmqm -e CMDLEVEL=${MQ_QMGR_CMDLEVEL} || true
-                fi
-		echo "----------------------------------------"
-	fi
-	strmqm ${MQ_QMGR_NAME}
-	if [ ${QMGR_EXISTS} -ne 0 ]; then
-		echo "----------------------------------------"
-		if [ -f /etc/mqm/listener.mqsc ]; then
-			runmqsc ${MQ_QMGR_NAME} < /etc/mqm/listener.mqsc
-		fi
-		if [ -f /etc/mqm/config.mqsc ]; then
-			runmqsc ${MQ_QMGR_NAME} < /etc/mqm/config.mqsc
-		fi
-	fi
-	echo "----------------------------------------"
+  QMGR_EXISTS=`dspmq | grep ${MQ_QMGR_NAME} > /dev/null ; echo $?`
+  if [ ${QMGR_EXISTS} -ne 0 ]; then
+    echo "Checking filesystem..."
+    amqmfsck /var/mqm
+    echo "----------------------------------------"
+    crtmqm -q ${MQ_QMGR_NAME} || true
+    if [ ${MQ_QMGR_CMDLEVEL+x} ]; then
+      # Enables the specified command level, then stops the queue manager
+      strmqm -e CMDLEVEL=${MQ_QMGR_CMDLEVEL} || true
+    fi
+    echo "----------------------------------------"
+  fi
+  strmqm ${MQ_QMGR_NAME}
+  if [ ${QMGR_EXISTS} -ne 0 ]; then
+    echo "----------------------------------------"
+    if [ -f /etc/mqm/listener.mqsc ]; then
+      runmqsc ${MQ_QMGR_NAME} < /etc/mqm/listener.mqsc
+    fi
+    if [ -f /etc/mqm/config.mqsc ]; then
+      runmqsc ${MQ_QMGR_NAME} < /etc/mqm/config.mqsc
+    fi
+  fi
+  echo "----------------------------------------"
 }
 
 state()
 {
-	dspmq -n -m ${MQ_QMGR_NAME} | awk -F '[()]' '{ print $4 }'
+  dspmq -n -m ${MQ_QMGR_NAME} | awk -F '[()]' '{ print $4 }'
 }
 
 monitor()
 {
-	# Loop until "dspmq" says the queue manager is running
-	until [ "`state`" == "RUNNING" ]; do
-		sleep 1
-	done
-	dspmq
+  # Loop until "dspmq" says the queue manager is running
+  until [ "`state`" == "RUNNING" ]; do
+    sleep 1
+  done
+  dspmq
 
-	# Loop until "dspmq" says the queue manager is not running any more
-	until [ "`state`" != "RUNNING" ]; do
-		sleep 5
-	done
+  # Loop until "dspmq" says the queue manager is not running any more
+  until [ "`state`" != "RUNNING" ]; do
+    sleep 5
+  done
 
-	# Wait until queue manager has ended before exiting
-	while true; do
-		STATE=`state`
-		case "$STATE" in
-			ENDED*) break;;
-			*) ;;
-		esac
-		sleep 1
-	done
-	dspmq
+  # Wait until queue manager has ended before exiting
+  while true; do
+    STATE=`state`
+    case "$STATE" in
+      ENDED*) break;;
+      *) ;;
+    esac
+    sleep 1
+  done
+  dspmq
 }
 
 mq-license-check.sh
 # If /var/mqm is empty (because it's mounted from a new host volume), then populate it
 if [ ! "$(ls -A /var/mqm)" ]; then
-	/opt/mqm/bin/amqicdir -i -f
+  /opt/mqm/bin/amqicdir -i -f
 fi
 config
 trap stop SIGTERM SIGINT
