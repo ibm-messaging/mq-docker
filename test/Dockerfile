@@ -16,7 +16,7 @@ FROM ubuntu:16.04
 
 MAINTAINER Arthur Barr <arthur.barr@uk.ibm.com>
 
-ENV NODE_VERSION 6.3.0
+ENV NODE_VERSION 6.4.0
 
 RUN export DEBIAN_FRONTEND=noninteractive \
   && apt-get update -y \

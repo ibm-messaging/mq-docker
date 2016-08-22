@@ -24,6 +24,10 @@ stop()
 config()
 {
   : ${MQ_QMGR_NAME?"ERROR: You need to set the MQ_QMGR_NAME environment variable"}
+  # Populate and update the contents of /var/mqm - this is needed for
+	# bind-mounted volumes, and also to migrate data from previous versions of MQ
+  /opt/mqm/bin/amqicdir -i -f
+  ls -l /var/mqm
   source /opt/mqm/bin/setmqenv -s
   echo "----------------------------------------"
   dspmqver
@@ -85,10 +89,6 @@ monitor()
 }
 
 mq-license-check.sh
-# If /var/mqm is empty (because it's mounted from a new host volume), then populate it
-if [ ! "$(ls -A /var/mqm)" ]; then
-  /opt/mqm/bin/amqicdir -i -f
-fi
 config
 trap stop SIGTERM SIGINT
 monitor
