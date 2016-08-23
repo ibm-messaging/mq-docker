@@ -50,4 +50,4 @@ docker run \
 
 # Clean up
 docker network rm ${NETWORK}
-#rm -rf ${TEMP_DIR}
+rm -rf ${TEMP_DIR}
