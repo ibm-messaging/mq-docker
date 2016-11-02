@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM ubuntu:16.04
+FROM ubuntu:14.04
 
 MAINTAINER Arthur Barr <arthur.barr@uk.ibm.com>
 
@@ -20,9 +20,11 @@ MAINTAINER Arthur Barr <arthur.barr@uk.ibm.com>
 ARG MQ_URL=http://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/messaging/mqadv/mqadv_dev90_linux_x86-64.tar.gz
 
 # The MQ packages to install
-ARG MQ_PACKAGES="MQSeriesRuntime-*.rpm MQSeriesServer-*.rpm MQSeriesMsg*.rpm MQSeriesJava*.rpm MQSeriesJRE*.rpm MQSeriesGSKit*.rpm MQSeriesWeb*.rpm"
+ARG MQ_PACKAGES="MQSeriesRuntime-*.rpm MQSeriesServer-*.rpm MQSeriesMsg*.rpm MQSeriesJava*.rpm MQSeriesJRE*.rpm MQSeriesGSKit*.rpm"
 
 RUN export DEBIAN_FRONTEND=noninteractive \
+  # Optional: Update the command prompt
+  && echo "mq:9.0" > /etc/debian_chroot \
   # Install additional packages required by MQ, this install process and the runtime scripts
   && apt-get update -y \
   && apt-get install -y --no-install-recommends \
@@ -60,11 +62,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
   && /opt/mqm/bin/setmqinst -p /opt/mqm -i \
   # Clean up all the downloaded files
   && rm -rf /tmp/mq \
-  && rm -rf /var/lib/apt/lists/* \
-  # Optional: Update the command prompt with the MQ version
-  && echo "mq:$(dspmqver -b -f 2)" > /etc/debian_chroot
-
-COPY mqwebuser.xml /var/mqm/web/installations/Installation1/servers/mqweb/mqwebuser.xml
+  && rm -rf /var/lib/apt/lists/*
 
 COPY *.sh /usr/local/bin/
 COPY *.mqsc /etc/mqm/
@@ -72,13 +70,9 @@ COPY *.mqsc /etc/mqm/
 RUN chmod +x /usr/local/bin/*.sh
 
 # Always use port 1414 (the Docker administrator can re-map ports at runtime)
-# Expose port 9443 for the web console
-EXPOSE 1414 9443
+EXPOSE 1414
 
 # Always put the MQ data directory in a Docker volume
 VOLUME /var/mqm
-
-#ENV LANG=C.UTF-8
-ENV LANG=en_US.UTF-8
 
 ENTRYPOINT ["mq.sh"]

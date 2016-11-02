@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ****************************************************************** -->
+<!--                                                                    -->
+<!--  IBM MQ Security Configuration for MQ Console.                     -->
+<!--                                                                    -->
+<!--  Name: basic_registry.xml                                          -->
+<!--                                                                    -->
+<!--  Description:  Basic XML based registry                            -->
+<!--                                                                    -->
+<!-- ****************************************************************** -->
+<!-- <copyright                                                         -->
+<!--     notice='lm-source-program'                                     -->
+<!--     pids='5724-H72'                                                -->
+<!--     years='2016'                                                   -->
+<!--     crc='' >                                                       -->
+<!--                                                                    -->
+<!--     Licensed Materials - Property of IBM                           -->
+<!--                                                                    -->
+<!--     5724-H72                                                       -->
+<!--                                                                    -->
+<!--     (C) Copyright IBM Corp. 2016 All Rights Reserved.              -->
+<!--                                                                    -->
+<!--     US Government Users Restricted Rights - Use, duplication or    -->
+<!--     disclosure restricted by GSA ADP Schedule Contract with        -->
+<!--     IBM Corp.                                                      -->
+<!-- </copyright>                                                       -->
+<server>
+    <!--
+      This sample grants the following role mappings:
+
+      1) MQWebAdmin role access to the 'MQWebUI' group. When a user is a
+      member of this group, all MQ commands issued by the MQ Console use
+      the security context of the operating system user running the
+      application server.
+
+      2) MQWebAdminRO role access to the 'reader' user. The 'reader' user
+      uses the security context of the operating system user running the
+      application server for all read-only MQ commands, such as DISPLAY
+      CHANNEL, QUEUE, etc, issued by the MQ Console.
+
+      3) MQWebUser role access to all authenticated users. This role is used
+      by authenticated users where no other role is applicable, for example
+      the 'reader' user attempting to define a new queue. All MQ commands
+      issued by the MQ Console uses the security context of the principal
+      and so the user must be known to the queue manager and authorized
+      to issue the command.
+    -->
+
+    <!-- Enable features -->
+    <featureManager>
+        <feature>appSecurity-2.0</feature>
+    </featureManager>
+
+    <enterpriseApplication id="com.ibm.mq.console">
+        <application-bnd>
+            <security-role name="MQWebAdmin">
+                <group name="MQWebUI" realm="defaultRealm"/>
+            </security-role>
+            <security-role name="MQWebAdminRO">
+                <user name="reader" realm="defaultRealm"/>
+            </security-role>
+            <security-role name="MQWebUser">
+                <special-subject type="ALL_AUTHENTICATED_USERS"/>
+            </security-role>
+        </application-bnd>
+    </enterpriseApplication>
+
+    <!-- Sample Basic Registry -->
+    <basicRegistry id="basic" realm="defaultRealm">
+        <!-- This sample defines two users with unencoded passwords -->
+        <!-- and a group, these are used by the role mappings above -->
+        <user name="admin" password="admin"/>
+        <user name="reader" password="reader"/>
+        <group name="MQWebUI">
+           <member name="admin"/>
+        </group>
+    </basicRegistry>
+
+    <!-- Enable HTTP by uncommenting the line below
+    <variable name="httpPort" value="9080"/>
+    -->
+
+    <variable name="httpHost" value="*"/>
+
+    <!-- Enable client certificate authentication by uncommenting the
+         block below and creating a trust.jks store. Basic registry
+         maps the common name (CN=) issued by a trusted CA to
+         users names in the registry. For example a certificate with
+         a distinguished name of 'CN=admin,O=IBM,C=GB' will be granted
+         a MQWebAdmin role under the 'admin' user.
+
+         The default, auto-generated certificate held in key.jks is
+         intended for developer convenience only, it is not intended for
+         production use.
+
+         Passwords for both defaultKeyStore and defaultTrustStore should
+         be changed and encoded using the securityUtility tool, refer
+         to the following developerWorks article for further information;
+
+         https://developer.ibm.com/wasdev/docs/configuring-ssl-liberty/
+
+    <keyStore id="defaultKeyStore" location="key.jks" type="JKS" password="password"/>
+    <keyStore id="defaultTrustStore" location="trust.jks" type="JKS" password="password"/>
+    <ssl id="thisSSLConfig" clientAuthenticationSupported="true" keyStoreRef="defaultKeyStore" trustStoreRef="defaultTrustStore" sslProtocol="TLSv1.2" serverKeyAlias="default"/>
+    <sslDefault sslRef="thisSSLConfig"/>
+    -->
+
+    <variable name="traceSpec" value="*=info:com.ibm.mq*=all:com.ibm.mq.exceptions*=all:com.ibm.mq.rest*=all:js.mq*=all"/>
+</server>

@@ -55,6 +55,8 @@ config()
       runmqsc ${MQ_QMGR_NAME} < /etc/mqm/config.mqsc
     fi
   fi
+  # Start the web console, if it's been installed
+  which strmqweb && su mqm -c "bash strmqweb"
   echo "----------------------------------------"
 }
 
