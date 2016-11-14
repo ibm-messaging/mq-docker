@@ -23,8 +23,6 @@ ARG MQ_URL=http://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/messagi
 ARG MQ_PACKAGES="MQSeriesRuntime-*.rpm MQSeriesServer-*.rpm MQSeriesMsg*.rpm MQSeriesJava*.rpm MQSeriesJRE*.rpm MQSeriesGSKit*.rpm"
 
 RUN export DEBIAN_FRONTEND=noninteractive \
-  # Optional: Update the command prompt
-  && echo "mq:9.0" > /etc/debian_chroot \
   # Install additional packages required by MQ, this install process and the runtime scripts
   && apt-get update -y \
   && apt-get install -y --no-install-recommends \
@@ -62,7 +60,9 @@ RUN export DEBIAN_FRONTEND=noninteractive \
   && /opt/mqm/bin/setmqinst -p /opt/mqm -i \
   # Clean up all the downloaded files
   && rm -rf /tmp/mq \
-  && rm -rf /var/lib/apt/lists/*
+  && rm -rf /var/lib/apt/lists/* \
+  # Optional: Update the command prompt with the MQ version
+  && echo "mq:$(dspmqver -b -f 2)" > /etc/debian_chroot
 
 COPY *.sh /usr/local/bin/
 COPY *.mqsc /etc/mqm/
