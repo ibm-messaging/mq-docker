@@ -10,16 +10,10 @@ You need to make sure that you either have a Linux kernel version of V3.16, or e
 ) to Linux kernel V3.16, the hard-coded limit is greatly increased.  This kernel version is available in Ubuntu 14.04.2 onwards, Fedora V20 onwards, and boot2docker V1.2 onwards.  If you are using a host with an older kernel version, but Docker version 1.4 or newer, then you can still run MQ, but you have to give it access to the host's IPC namespace using the [`--ipc host`](http://docs.docker.com/reference/run/#ipc-settings) option on `docker run`.  Note that this reduces the security isolation of your container.  Using the host's IPC namespace is a temporary workaround, and you should not attempt shared-memory connections to queue managers from outside the container.
 
 # Build
-After extracting the code from this repository, you can build an image with the latest version of MQ using the following command:
+After extracting the code from this repository, you can build an image with MQ V8 using the following command:
 
 ```
 sudo docker build --tag mq ./server/
-```
-
-To build alternative versions, you can use commands similar to the following:
-
-```
-sudo docker build --tag mq:8 --file ./server/Dockerfile-mq8 ./server/
 ```
 
 # Usage
