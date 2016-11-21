@@ -13,7 +13,7 @@ You need to make sure that you either have a Linux kernel version of V3.16, or e
 After extracting the code from this repository, you can build an image with MQ V9 using the following command:
 
 ```
-sudo docker build --tag mq ./server/
+sudo docker build --tag mq .
 ```
 
 # Usage
