@@ -3,7 +3,7 @@
 Run [IBM® MQ](http://www-03.ibm.com/software/products/en/ibm-mq) in a Docker container.  By default, the supplied Dockerfile runs [IBM MQ for Developers](http://www-03.ibm.com/software/products/en/ibm-mq-advanced-for-developers), but also works for IBM MQ.  The source can be found on the [ibm-messaging GitHub](http://github.com/ibm-messaging/mq-docker).  There's also a short [demo video](https://www.youtube.com/watch?v=BoomAVqk0cI) available.
 
 # Docker Hub
-The image is available on Docker Hub as [`ibmcom/mq:8`](https://hub.docker.com/r/ibmcom/mq/) with the following tags:
+The image is available on Docker Hub as [`ibmcom/mq:8`](https://hub.docker.com/r/ibmcom/mq/).
 
 # Preparing your Docker host
 You need to make sure that you either have a Linux kernel version of V3.16, or else you need to add the [`--ipc host`](http://docs.docker.com/reference/run/#ipc-settings) option when you run an MQ container.  The reason for this is that IBM MQ uses shared memory, and on Linux kernels prior to V3.16, containers are usually limited to 32 MB of shared memory.  In a [change](https://git.kernel.org/cgit/linux/kernel/git/mhocko/mm.git/commit/include/uapi/linux/shm.h?id=060028bac94bf60a65415d1d55a359c3a17d5c31
