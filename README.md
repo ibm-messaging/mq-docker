@@ -3,10 +3,7 @@
 Run [IBM® MQ](http://www-03.ibm.com/software/products/en/ibm-mq) in a Docker container.  By default, the supplied Dockerfile runs [IBM MQ for Developers](http://www-03.ibm.com/software/products/en/ibm-mq-advanced-for-developers), but also works for IBM MQ.  The source can be found on the [ibm-messaging GitHub](http://github.com/ibm-messaging/mq-docker).  There's also a short [demo video](https://www.youtube.com/watch?v=BoomAVqk0cI) available.
 
 # Docker Hub
-The image is available on Docker Hub as [`ibmcom/mq`](https://hub.docker.com/r/ibmcom/mq/) with the following tags:
-
-  * `9`, `latest` ([Dockerfile](https://github.com/ibm-messaging/mq-docker/blob/master/server/Dockerfile))
-  * `8` ([Dockerfile](https://github.com/ibm-messaging/mq-docker/blob/master/server/Dockerfile-mq8))
+The image is available on Docker Hub as [`ibmcom/mq:8`](https://hub.docker.com/r/ibmcom/mq/) with the following tags:
 
 # Preparing your Docker host
 You need to make sure that you either have a Linux kernel version of V3.16, or else you need to add the [`--ipc host`](http://docs.docker.com/reference/run/#ipc-settings) option when you run an MQ container.  The reason for this is that IBM MQ uses shared memory, and on Linux kernels prior to V3.16, containers are usually limited to 32 MB of shared memory.  In a [change](https://git.kernel.org/cgit/linux/kernel/git/mhocko/mm.git/commit/include/uapi/linux/shm.h?id=060028bac94bf60a65415d1d55a359c3a17d5c31
@@ -91,7 +88,7 @@ Using this technique, you can have full control over all aspects of the MQ insta
 
 ## Installed components
 
-This image includes the core MQ server, Java, language packs, and GSKit.  Other features (except the client) are not currently supported running in Docker.  See the [MQ documentation](http://www.ibm.com/support/knowledgecenter/en/SSFKSJ_9.0.0/com.ibm.mq.ins.doc/q008350_.htm) for details of which RPMs to choose.
+This image includes the core MQ server, Java, language packs, and GSKit.  Other features (except the client) are not currently supported running in Docker.  See the [MQ documentation](http://www.ibm.com/support/knowledgecenter/en/SSFKSJ_8.0.0/com.ibm.mq.ins.doc/q008350_.htm) for details of which RPMs to choose.
 
 # Troubleshooting
 
