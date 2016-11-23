@@ -5,8 +5,9 @@ Run [IBM® MQ](http://www-03.ibm.com/software/products/en/ibm-mq) in a Docker co
 # Docker Hub
 The image is available on Docker Hub as [`ibmcom/mq`](https://hub.docker.com/r/ibmcom/mq/) with the following tags:
 
-  * `9`, `latest` ([Dockerfile](https://github.com/ibm-messaging/mq-docker/blob/master/server/Dockerfile))
-  * `8` ([Dockerfile](https://github.com/ibm-messaging/mq-docker/blob/master/server/Dockerfile-mq8))
+  * `latest`,`9` ([Dockerfile](https://github.com/ibm-messaging/mq-docker/blob/master/server/Dockerfile))
+  * `lts`, `9-lts`, ([Dockerfile](https://github.com/ibm-messaging/mq-docker/blob/mq-9-lts/Dockerfile))
+  * `8` ([Dockerfile](https://github.com/ibm-messaging/mq-docker/blob/mq-8/Dockerfile))
 
 # Preparing your Docker host
 You need to make sure that you either have a Linux kernel version of V3.16, or else you need to add the [`--ipc host`](http://docs.docker.com/reference/run/#ipc-settings) option when you run an MQ container.  The reason for this is that IBM MQ uses shared memory, and on Linux kernels prior to V3.16, containers are usually limited to 32 MB of shared memory.  In a [change](https://git.kernel.org/cgit/linux/kernel/git/mhocko/mm.git/commit/include/uapi/linux/shm.h?id=060028bac94bf60a65415d1d55a359c3a17d5c31
@@ -19,10 +20,11 @@ After extracting the code from this repository, you can build an image with the 
 sudo docker build --tag mq ./server/
 ```
 
-To build alternative versions, you can use commands similar to the following:
+To build alternative versions, you can download the source from one of the Git branches, for example:
 
 ```
-sudo docker build --tag mq:8 --file ./server/Dockerfile-mq8 ./server/
+git clone -b mq-8 https://github.com/ibm-messaging/mq-docker ./mq-8-docker
+sudo docker build --tag mq:8 ./mq-8-docker/
 ```
 
 # Usage
@@ -45,13 +47,13 @@ sudo docker run \
 
 Note that in this example, the name "mq" is the image tag you used in the previous build step.
 
-Also note that the filesystem for the mounted volume directory (`/var/example` in the above example) must be [supported](http://www-01.ibm.com/support/knowledgecenter/SSFKSJ_8.0.0/com.ibm.mq.pla.doc/q005820_.htm?lang=en).
+Also note that the filesystem for the mounted volume directory (`/var/example` in the above example) must be [supported](http://www-01.ibm.com/support/knowledgecenter/SSFKSJ_9.0.0/com.ibm.mq.pla.doc/q005820_.htm?lang=en).
 
 ## Customizing the queue manager configuration
 You can customize the configuration in several ways:
 
 1. By creating your own image and adding your an MQSC file called `/etc/mqm/config.mqsc`.  This file will be run when your queue manager is created.
-2. By using [remote MQ administration](http://www-01.ibm.com/support/knowledgecenter/SSFKSJ_8.0.0/com.ibm.mq.adm.doc/q021090_.htm).  Note that this will require additional configuration as remote administration is not enabled by default.
+2. By using [remote MQ administration](http://www-01.ibm.com/support/knowledgecenter/SSFKSJ_9.0.0/com.ibm.mq.adm.doc/q021090_.htm).  Note that this will require additional configuration as remote administration is not enabled by default.
 
 Note that a listener is always created on port 1414 inside the container.  This port can be mapped to any port on the Docker host.
 
