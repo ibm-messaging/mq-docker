@@ -1,4 +1,4 @@
-# © Copyright IBM Corporation 2015, 2016
+# © Copyright IBM Corporation 2015, 2017
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -78,7 +78,6 @@ EXPOSE 1414 9443
 # Always put the MQ data directory in a Docker volume
 VOLUME /var/mqm
 
-#ENV LANG=C.UTF-8
 ENV LANG=en_US.UTF-8
 
 ENTRYPOINT ["mq.sh"]
