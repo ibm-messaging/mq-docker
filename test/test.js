@@ -18,6 +18,7 @@ const assert = require('chai').assert;
 const exec = require('child_process').exec;
 const fs = require('fs');
 const net = require('net');
+const tls = require('tls');
 
 // Pre-requisites for running this test:
 //   * Docker network created
@@ -79,8 +80,42 @@ describe('MQ Docker sample', function() {
     });
   };
 
+  // Utility function to wait for the HTTPS web interface to become available
+  let waitForWeb = function(addr, port = 9443) {
+    return new Promise((resolve, reject) => {
+      const INTERVAL = 3000; //ms
+      let count = 0;
+      let timer = setInterval(() => {
+        count++;
+        if ((count * INTERVAL) >= 60000) {
+          clearInterval(timer);
+          reject(new Error(`Timed out connecting to port ${port}`));
+        }
+        else {
+          let socket = new tls.TLSSocket();
+          socket.on('connect', () => {
+            clearInterval(timer);
+            resolve();
+          });
+          socket.connect(port, addr);
+        }
+      }, INTERVAL);
+    });
+  };
+
+  // Utility function to delete a container
+  let deleteContainer = function(id) {
+    return new Promise((resolve, reject) => {
+      exec(`docker rm --force ${id}`, function (err, stdout, stderr) {
+        if (err) reject(err);
+        resolve();
+      });
+    });
+  };
+
   describe('with running container', function() {
     let container = null;
+    this.timeout(10000);
 
     describe('and implicit volume', function() {
       before(function() {
@@ -90,11 +125,19 @@ describe('MQ Docker sample', function() {
           container = details;
         });
       });
+      after(function() {
+        return deleteContainer(container.id);
+      });
       it('should be listening on port 1414 on the Docker network', function (done) {
         const client = net.connect({host: container.addr, port: 1414}, () => {
-            client.on('close', done);
-            client.end();
+          client.on('close', done);
+          client.end();
         });
+      });
+      // Only run this test once, as it's quite slow
+      it('should be listening on port 9443 on the Docker network', function () {
+        this.timeout(120000);
+        return waitForWeb(container.addr);
       });
     });
 
@@ -113,9 +156,12 @@ describe('MQ Docker sample', function() {
       });
 
       after(function(done) {
-        exec(`rm -rf  ${volumeDir}`, function (err, stdout, stderr) {
-          if (err) throw err;
-          done();
+        deleteContainer(container.id)
+        .then(() => {
+          exec(`rm -rf  ${volumeDir}`, function (err, stdout, stderr) {
+            if (err) throw err;
+            done();
+          });
         });
       });
 
@@ -145,10 +191,13 @@ describe('MQ Docker sample', function() {
       });
 
       after(function(done) {
-        exec(`rm -rf  ${volumeDir}`, function (err, stdout, stderr) {
-          if (err) throw err;
+        deleteContainer(container.id)
+        .then(() => {
+          exec(`rm -rf  ${volumeDir}`, function (err, stdout, stderr) {
+            if (err) throw err;
             done();
           });
+        });
       });
 
       it('should be listening on port 1414 on the Docker network', function (done) {
@@ -156,12 +205,6 @@ describe('MQ Docker sample', function() {
             client.on('close', done);
             client.end();
         });
-      });
-    });
-
-    afterEach(function(done) {
-      exec(`docker rm --force ${container.id}`, function (err, stdout, stderr) {
-        done();
       });
     });
   });

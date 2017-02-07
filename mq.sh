@@ -56,7 +56,7 @@ config()
     fi
   fi
   # Start the web console, if it's been installed
-  which strmqweb && su mqm -c "bash strmqweb"
+  which strmqweb && su mqm -c "bash strmqweb &"
   echo "----------------------------------------"
 }
 
