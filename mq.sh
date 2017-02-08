@@ -46,15 +46,9 @@ config()
     echo "----------------------------------------"
   fi
   strmqm ${MQ_QMGR_NAME}
-  if [ ${QMGR_EXISTS} -ne 0 ]; then
-    echo "----------------------------------------"
-    if [ -f /etc/mqm/listener.mqsc ]; then
-      runmqsc ${MQ_QMGR_NAME} < /etc/mqm/listener.mqsc
-    fi
-    if [ -f /etc/mqm/config.mqsc ]; then
-      runmqsc ${MQ_QMGR_NAME} < /etc/mqm/config.mqsc
-    fi
-  fi
+  for MQSC_FILE in $(ls -v /etc/mqm/*.mqsc); do
+    runmqsc ${MQ_QMGR_NAME} < ${MQSC_FILE}
+  done
   # Start the web console, if it's been installed
   which strmqweb && su mqm -c "bash strmqweb &"
   echo "----------------------------------------"

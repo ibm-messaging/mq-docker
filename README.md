@@ -16,7 +16,7 @@ You need to make sure that you either have a Linux kernel version of V3.16, or e
 After extracting the code from this repository, you can build an image with the latest version of MQ using the following command:
 
 ```
-sudo docker build --tag mq ./server/
+sudo docker build --tag mq .
 ```
 
 To build alternative versions, you can use commands similar to the following:
@@ -45,13 +45,13 @@ sudo docker run \
 
 Note that in this example, the name "mq" is the image tag you used in the previous build step.
 
-Also note that the filesystem for the mounted volume directory (`/var/example` in the above example) must be [supported](http://www-01.ibm.com/support/knowledgecenter/SSFKSJ_8.0.0/com.ibm.mq.pla.doc/q005820_.htm?lang=en).
+Also note that the filesystem for the mounted volume directory (`/var/example` in the above example) must be [supported](http://www-01.ibm.com/support/knowledgecenter/SSFKSJ_9.0.0/com.ibm.mq.pla.doc/q005820_.htm?lang=en).
 
 ## Customizing the queue manager configuration
 You can customize the configuration in several ways:
 
 1. By creating your own image and adding your an MQSC file called `/etc/mqm/config.mqsc`.  This file will be run when your queue manager is created.
-2. By using [remote MQ administration](http://www-01.ibm.com/support/knowledgecenter/SSFKSJ_8.0.0/com.ibm.mq.adm.doc/q021090_.htm).  Note that this will require additional configuration as remote administration is not enabled by default.
+2. By using [remote MQ administration](http://www-01.ibm.com/support/knowledgecenter/SSFKSJ_9.0.0/com.ibm.mq.adm.doc/q021090_.htm).  Note that this will require additional configuration as remote administration is not enabled by default.
 
 Note that a listener is always created on port 1414 inside the container.  This port can be mapped to any port on the Docker host.
 
@@ -61,13 +61,13 @@ The following is an *example* `Dockerfile` for creating your own pre-configured 
 FROM mq
 RUN useradd alice -G mqm && \
     echo alice:passw0rd | chpasswd
-COPY config.mqsc /etc/mqm/
+COPY 20-config.mqsc /etc/mqm/
 ```
 
-Here is an example corresponding `config.mqsc` script from the [mqdev blog](https://www.ibm.com/developerworks/community/blogs/messaging/entry/getting_going_without_turning_off_mq_security?lang=en), which allows users with passwords to connect on the `PASSWORD.SVRCONN` channel:
+Here is an example corresponding `20-config.mqsc` script from the [mqdev blog](https://www.ibm.com/developerworks/community/blogs/messaging/entry/getting_going_without_turning_off_mq_security?lang=en), which allows users with passwords to connect on the `PASSWORD.SVRCONN` channel:
 
 ```
-DEFINE CHANNEL(PASSWORD.SVRCONN) CHLTYPE(SVRCONN)
+DEFINE CHANNEL(PASSWORD.SVRCONN) CHLTYPE(SVRCONN) REPLACE
 SET CHLAUTH(PASSWORD.SVRCONN) TYPE(BLOCKUSER) USERLIST('nobody') DESCR('Allow privileged users on this channel')
 SET CHLAUTH('*') TYPE(ADDRESSMAP) ADDRESS('*') USERSRC(NOACCESS) DESCR('BackStop rule')
 SET CHLAUTH(PASSWORD.SVRCONN) TYPE(ADDRESSMAP) ADDRESS('*') USERSRC(CHANNEL) CHCKCLNT(REQUIRED)
