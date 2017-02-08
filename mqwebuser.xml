@@ -93,6 +93,4 @@ limitations under the License.
     <ssl id="thisSSLConfig" clientAuthenticationSupported="true" keyStoreRef="defaultKeyStore" trustStoreRef="defaultTrustStore" sslProtocol="TLSv1.2" serverKeyAlias="default"/>
     <sslDefault sslRef="thisSSLConfig"/>
     -->
-
-    <variable name="traceSpec" value="*=info:com.ibm.mq*=all:com.ibm.mq.exceptions*=all:com.ibm.mq.rest*=all:js.mq*=all"/>
 </server>
