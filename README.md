@@ -47,6 +47,17 @@ Note that in this example, the name "mq" is the image tag you used in the previo
 
 Also note that the filesystem for the mounted volume directory (`/var/example` in the above example) must be [supported](http://www-01.ibm.com/support/knowledgecenter/SSFKSJ_9.0.0/com.ibm.mq.pla.doc/q005820_.htm?lang=en).
 
+## Running on Bluemix with volumes
+If you wish to run a queue manager with default configuration and a listener on port 1414, but using a Bluemix volume to store your data you will need to mount the volume in a different directory than `/var/mqm`. When using a volume in Bluemix, special actions need to be taken in order to mount the IBM MQ data directory with the correct permissions on the volume. These actions are performed in the `setup-var-mqm.sh` script. The script is configured to look for a directory called `/mnt/mqm`, if it finds this then it will perform the special actions to create the IBM MQ data directory. When using mounting a volume to a Bluemix container you should mount the volume to the `/mnt/mqm` directory:
+
+```
+cf ic run \
+  --env LICENSE=accept \
+  --env MQ_QMGR_NAME=QM1 \
+  --volume /var/example:/mnt/mqm \
+  mq
+```
+
 ## Customizing the queue manager configuration
 You can customize the configuration in several ways:
 

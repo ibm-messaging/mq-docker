@@ -207,5 +207,75 @@ describe('MQ Docker sample', function() {
         });
       });
     });
+
+    // Bluemix presented a new challenge when attempting to use it's volumes
+    // Because Bluemix is more secure and only allows root users to edit mounted
+    // volumes (and MQ runs as mqm) we have to mount the volume at another directory
+    // and then mount /var/mqm to a folder within that which has the correct owner.
+    describe('and a mounted volume in a different location', function() {
+      let volumeDir = null;
+      before(function() {
+        volumeDir = fs.mkdtempSync(VOLUME_PREFIX);
+      });
+
+      before(function() {
+        return runContainer(`--volume ${volumeDir}:/mnt/mqm`)
+        .then((details) => {
+          container = details;
+        });
+      });
+
+      after(function(done) {
+        deleteContainer(container.id)
+        .then(() => {
+          exec(`rm -rf  ${volumeDir}`, function (err, stdout, stderr) {
+            if (err) throw err;
+            done();
+          });
+        });
+      });
+
+      it('should be listening on port 1414 on the Docker network', function (done) {
+        const client = net.connect({host: container.addr, port: 1414}, () => {
+            client.on('close', done);
+            client.end();
+        });
+      });
+    });
+
+    // Test that we can stop and start a container without it failing. This Test
+    // makes sure that the scripts we set to run on every start can be ran when
+    // MQ data is already present.
+    describe('and can be started multiple times', function() {
+      before(function() {
+        return runContainer(``)
+        .then((details) => {
+          container = details;
+        });
+      });
+
+      after(function() {
+        return deleteContainer(container.id);
+      });
+
+      it('should not fail', function (done) {
+        exec(`docker stop ${container.id}`, function (err, stdout, stderr) {
+          if (err) throw err;
+          exec(`docker start ${container.id}`, function (err, stdout, stderr) {
+            if (err) throw err;
+            let timer = setInterval(function() {
+              exec(`docker exec ${container.id} dspmq -n`, function (err, stdout, stderr) {
+                if (err) throw(err);
+                if (stdout && stdout.includes("RUNNING")) {
+                  // Queue manager is up, so clear the timer
+                  clearInterval(timer);
+                  done();
+                }
+              });
+            }, 1000);
+          });
+        });
+      });
+    });
   });
 });

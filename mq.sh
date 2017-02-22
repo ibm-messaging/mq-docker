@@ -26,7 +26,9 @@ config()
   : ${MQ_QMGR_NAME?"ERROR: You need to set the MQ_QMGR_NAME environment variable"}
   # Populate and update the contents of /var/mqm - this is needed for
 	# bind-mounted volumes, and also to migrate data from previous versions of MQ
-  /opt/mqm/bin/amqicdir -i -f
+
+  setup-var-mqm.sh
+
   ls -l /var/mqm
   source /opt/mqm/bin/setmqenv -s
   echo "----------------------------------------"
@@ -46,10 +48,18 @@ config()
     echo "----------------------------------------"
   fi
   strmqm ${MQ_QMGR_NAME}
+
+  # Turn off script failing here because of listeners failing the script
+  set +e
   for MQSC_FILE in $(ls -v /etc/mqm/*.mqsc); do
     runmqsc ${MQ_QMGR_NAME} < ${MQSC_FILE}
   done
+  set -e
+
   # Start the web console, if it's been installed
+  if [ -e /etc/mqwebuser.xml ]; then
+    su -l mqm -c "cp /etc/mqwebuser.xml /var/mqm/web/installations/Installation1/servers/mqweb/mqwebuser.xml"
+  fi
   which strmqweb && su mqm -c "bash strmqweb &"
   echo "----------------------------------------"
 }
