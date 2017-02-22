@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM ubuntu:14.04
+FROM ubuntu:16.04
 
 LABEL maintainer "Arthur Barr <arthur.barr@uk.ibm.com>"
 
@@ -73,7 +73,8 @@ COPY *.mqsc /etc/mqm/
 RUN chmod +x /usr/local/bin/*.sh
 
 # Always use port 1414 (the Docker administrator can re-map ports at runtime)
-EXPOSE 1414
+# Expose port 9443 for the web console
+EXPOSE 1414 9443
 
 ENV LANG=en_US.UTF-8
 
