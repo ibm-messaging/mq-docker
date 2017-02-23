@@ -148,8 +148,12 @@ if [ "${MQ_DEV}" == "true" ]; then
 fi
 
 if [ ! -z ${MQ_TLS_KEYSTORE+x} ]; then
-  echo "Configuring TLS for QM $1"
-  mkdir /tmp/tlsTemp
-  chown mqm:mqm /tmp/tlsTemp
-  configure_tls $1
+  if [ ! -e "${DATA_PATH}/qmgrs/$1/ssl/key.kdb" ]; then
+    echo "Configuring TLS for QM $1"
+    mkdir -p /tmp/tlsTemp
+    chown mqm:mqm /tmp/tlsTemp
+    configure_tls $1
+  else
+    echo "A Key store already exists at '${DATA_PATH}/qmgrs/$1/ssl/key.kdb'"
+  fi
 fi

@@ -108,10 +108,14 @@ MQ_ADMIN_NAME="admin"
 echo $MQ_ADMIN_PASSWORD
 MQ_ADMIN_PASSWORD=${MQ_ADMIN_PASSWORD:-"admin"}
 
-mkdir /tmp/webTemp
-chown mqm:mqm /tmp/webTemp
+if [ ! -e "/tmp/webTemp" ]; then
+  mkdir -p /tmp/webTemp
+  chown mqm:mqm /tmp/webTemp
 
-configure_server_xml
+  configure_server_xml
+else
+  echo "Using existing Web Server configuration."
+fi
 
 #Run the server as mqm
 su -l mqm -c "bash strmqweb &"

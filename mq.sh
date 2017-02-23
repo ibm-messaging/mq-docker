@@ -98,6 +98,8 @@ monitor()
   done
   dspmq
 
+  echo "IBM MQ Queue Manager ${MQ_QMGR_NAME} is now fully running"
+
   # Loop until "dspmq" says the queue manager is not running any more
   until [ "`state`" != "RUNNING" ]; do
     sleep 5

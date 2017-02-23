@@ -62,11 +62,12 @@ describe('MQ Docker sample', function() {
       exec(cmd, function (err, stdout, stderr) {
         if (err) reject(err);
         let containerId = stdout.trim();
+        let startStr = `IBM MQ Queue Manager ${QMGR_NAME} is now fully running`;
         // Run dspmq every second, until the queue manager comes up
         let timer = setInterval(function() {
-          exec(`docker exec ${containerId} dspmq -n`, function (err, stdout, stderr) {
+          exec(`docker logs ${containerId}`, function (err, stdout, stderr) {
             if (err) reject(err);
-            if (stdout && stdout.includes("RUNNING")) {
+            if (stdout && stdout.includes(startStr)) {
               // Queue manager is up, so clear the timer
               clearInterval(timer);
               exec(`docker inspect --format '{{ .NetworkSettings.Networks.${DOCKER_NETWORK}.IPAddress }}' ${containerId}`, function (err, stdout, stderr) {
@@ -142,13 +143,13 @@ describe('MQ Docker sample', function() {
     });
 
     describe('and an empty bind-mounted volume', function() {
+      this.timeout(20000);
       let volumeDir = null;
       before(function() {
         volumeDir = fs.mkdtempSync(VOLUME_PREFIX);
       });
 
       before(function() {
-        this.timeout(20000);
         return runContainer(`--volume ${volumeDir}:/var/mqm`)
         .then((details) => {
           container = details;
@@ -176,6 +177,7 @@ describe('MQ Docker sample', function() {
     // This can happen if the entire volume directory is actually a filesystem.
     // See https://github.com/ibm-messaging/mq-docker/issues/29
     describe('and a non-empty bind-mounted volume', function() {
+      this.timeout(20000);
       let volumeDir = null;
       before(function() {
         volumeDir = fs.mkdtempSync(VOLUME_PREFIX);
@@ -183,7 +185,6 @@ describe('MQ Docker sample', function() {
       });
 
       before(function() {
-        this.timeout(20000);
         return runContainer(`--volume ${volumeDir}:/var/mqm`)
         .then((details) => {
           container = details;
@@ -213,6 +214,7 @@ describe('MQ Docker sample', function() {
     // volumes (and MQ runs as mqm) we have to mount the volume at another directory
     // and then mount /var/mqm to a folder within that which has the correct owner.
     describe('and a mounted volume in a different location', function() {
+      this.timeout(20000);
       let volumeDir = null;
       before(function() {
         volumeDir = fs.mkdtempSync(VOLUME_PREFIX);
@@ -264,10 +266,11 @@ describe('MQ Docker sample', function() {
           if (err) throw err;
           exec(`docker start ${container.id}`, function (err, stdout, stderr) {
             if (err) throw err;
+            let startStr = `IBM MQ Queue Manager ${QMGR_NAME} is now fully running`;
             let timer = setInterval(function() {
-              exec(`docker exec ${container.id} dspmq -n`, function (err, stdout, stderr) {
+              exec(`docker logs ${container.id}`, function (err, stdout, stderr) {
                 if (err) throw(err);
-                if (stdout && stdout.includes("RUNNING")) {
+                if (stdout && stdout.includes(startStr)) {
                   // Queue manager is up, so clear the timer
                   clearInterval(timer);
                   done();
