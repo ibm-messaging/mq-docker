@@ -1,3 +1,24 @@
+# contents
+* [Overview](#overview)
+* [Docker Hub](#docker-hub)
+* [Preparing your Docker host](#preparing-your-docker-host)
+* [Build](#build)
+* [Usage](#usage)
+    * [Running with the default configuration](#running-with-the-default-configuration)
+    * [Running on Bluemix with volumes](#running-on-bluemix-with-volumes)
+    * [Customizing the queue manager configuration](#customizing-the-queue-manager-configuration)
+	  * [Running MQ commands](#running-mq-commands)
+	  * [Installed components](#installed-components)
+	  * [MQ Developer Defaults](#mq-developer-defaults)
+	  * [Customizing MQ Developer Defaults](#customizing-mq-developer-defaults)
+    * [Web Console](#web-console)
+    * [List of all Environment variables supported by this image](#list-of-all-environment-variables supported by this image)
+* [Troubleshooting](#troubleshooting)
+    * [Container command not found or does not exist](#container-command-not-found-or-does-not-exist)
+    * [AMQ7017: Log not available](#amq7017-log-not-available)
+* [Issues and contributions](#issues-and-contributions)
+* [License](#license)
+
 # Overview
 
 Run [IBM® MQ](http://www-03.ibm.com/software/products/en/ibm-mq) in a Docker container.  By default, the supplied Dockerfile runs [IBM MQ for Developers](http://www-03.ibm.com/software/products/en/ibm-mq-advanced-for-developers), but also works for IBM MQ.  The source can be found on the [ibm-messaging GitHub](http://github.com/ibm-messaging/mq-docker).  There's also a short [demo video](https://www.youtube.com/watch?v=BoomAVqk0cI) available.
@@ -61,7 +82,7 @@ cf ic run \
 ## Customizing the queue manager configuration
 You can customize the configuration in several ways:
 
-1. By creating your own image and adding your an MQSC file called `/etc/mqm/config.mqsc`.  This file will be run when your queue manager is created.
+1. By creating your own image and adding your own MQSC file into the `/etc/mqm` directory on the image.  This file will be run when your queue manager is created.
 2. By using [remote MQ administration](http://www-01.ibm.com/support/knowledgecenter/SSFKSJ_9.0.0/com.ibm.mq.adm.doc/q021090_.htm).  Note that this will require additional configuration as remote administration is not enabled by default.
 
 Note that a listener is always created on port 1414 inside the container.  This port can be mapped to any port on the Docker host.
@@ -103,6 +124,80 @@ Using this technique, you can have full control over all aspects of the MQ insta
 ## Installed components
 
 This image includes the core MQ server, Java, language packs, and GSKit.  Other features (except the client) are not currently supported running in Docker.  See the [MQ documentation](http://www.ibm.com/support/knowledgecenter/en/SSFKSJ_9.0.0/com.ibm.mq.ins.doc/q008350_.htm) for details of which RPMs to choose.
+
+## MQ Developer Defaults
+
+This image includes the MQ Devloper defaults scripts which are automatically ran during Queue Manager startup. This configures your Queue Manager with a set of default objects that you can use to quickly get started developing with IBM MQ. If you do not want the default objects to be created you can set the `MQ_DEV` environment variable to `false`.
+
+#### Users
+**Userid:**   admin
+**Groups:**   mqm
+**Password:** admin
+
+**Userid:**   app
+**Groups:**   mqclient
+**Password:**
+
+#### Queues
+* DEV.QUEUE.1
+* DEV.QUEUE.2
+* DEV.QUEUE.3
+* DEV.DEAD.LETTER.QUEUE - Set as the Queue Manager's Dead Letter Queue.
+
+#### Channels
+* DEV.ADMIN.SVRCONN - Set to only allow the `admin` user to connect into it and a Userid + Password must be supplied.
+* DEV.APP.SVRCONN - Does not allow Administrator users to connect.
+
+#### Listener
+* DEV.LISTENER.TCP - Listening on Port 1414.
+
+#### Topic
+DEV.BASE.TOPIC - With a topic string of `dev/`.
+
+#### Authentication information
+* DEV.AUTHINFO - Set to use OS as the user repository and adopt supplied users for authorization checks
+
+#### Authority records
+* Users in `mqclient` group have been given access connect to all Queues and topics starting with `DEV.**` and have `put` `get` `pub` and `sub` permissions.
+
+## Customizing MQ Developer Defaults
+
+The MQ Developer Defaults supports some customization options, these are all controlled using environment variables:
+
+* **MQ_DEV** - Set this to `false` to stop the Default objects being created.
+* **MQ_ADMIN_PASSWORD** - Changes the password of the `admin` user
+* **MQ_APP_PASSWORD** - Changes the password of the app user. If set, this will cause the `DEV.APP.SVRCONN` channel to become secured and only allow connections that supply a valid userid and password.
+* **MQ_TLS_KEYSTORE** - Allows you to supply the location of a PKCS#12 keystore containing a single certificate which you want to use in both the web console and the queue manager. Requires `MQ_TLS_PASSPHRASE`. When enabled the channels created will be secured using the `TLS_RSA_WITH_AES_256_GCM_SHA384` CipherSpec. *Note*: you will need to make the keystore available inside your container, this can be done by mounting a volume to your container.
+* **MQ_TLS_PASSPHRASE** - Passphrase for the keystore referenced in `MQ_TLS_KEYSTORE`.
+
+## Web Console
+
+By default the image will start the IBM MQ Web Console that allows you to administer your Queue Manager running on your container. When the web console has been started, you can access it by opening a web browser and navigating to https://<Container IP>:9443/ibmmq/console. Where <Container IP> is replaced by the IP address of your running container.
+
+When you navigate to this page you may be presented by a security exception warning. This happens because by default the web console creates a self-signed certificate to use for the HTTPS operations. This certificate is not trusted by your browser and has an incorrect distinguished name.
+
+If you chose to accept the security warning, you will be presented with the login menu for the IBM MQ Web Console. The default login for the console is:
+
+* **User:** admin
+* **Password:** admin
+
+If you wish to change the password for the admin user, this can be done using the `MQ_ADMIN_PASSWORD` environment variable. If you supply a PKCS#12 keystore using the `MQ_TLS_KEYSTORE` environment variable, then the web console will be configured to use the certificate inside the keystore for HTTPS operations.
+
+If you do not wish the web console to run, you can disable it by setting the environment variable `MQ_DISABLE_WEB_CONSOLE` to `true`.
+
+## List of all Environment variables supported by this image
+
+* **LICENSE** - Set this to `accept` to agree to the MQ Advanced for Developers license. If you wish to see the license you can set this to `view`.
+* **LANG** - Set this to the language you would like the license to be printed in.
+* **MQ_QMGR_NAME** - Set this to the name you want your Queue Manager to be created with.
+* **MQ_QMGR_CMDLEVEL** - Set this to the `CMDLEVEL` you wish your Queue Manager to be started with.
+* **MQ_DEV** - Set this to `false` to stop the Default objects being created.
+* **MQ_ADMIN_PASSWORD** - Changes the password of the `admin` user
+* **MQ_APP_PASSWORD** - Changes the password of the app user. If set, this will cause the `DEV.APP.SVRCONN` channel to become secured and only allow connections that supply a valid userid and password.
+* **MQ_TLS_KEYSTORE** - Allows you to supply the location of a PKCS#12 keystore containing a single certificate which you want to use in both the web console and the queue manager. Requires `MQ_TLS_PASSPHRASE`. When enabled the channels created will be secured using the `TLS_RSA_WITH_AES_256_GCM_SHA384` CipherSpec. *Note*: you will need to make the keystore available inside your container, this can be done by mounting a volume to your container.
+* **MQ_TLS_PASSPHRASE** - Passphrase for the keystore referenced in `MQ_TLS_KEYSTORE`.
+* **MQ_DISABLE_WEB_CONSOLE** - Set this to `true` if you want to disable the Web Console from being started.
+
 
 # Troubleshooting
 

@@ -247,6 +247,7 @@ describe('MQ Docker sample', function() {
     // makes sure that the scripts we set to run on every start can be ran when
     // MQ data is already present.
     describe('and can be started multiple times', function() {
+      this.timeout(20000);
       before(function() {
         return runContainer(``)
         .then((details) => {

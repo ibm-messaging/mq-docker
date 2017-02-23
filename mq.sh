@@ -21,13 +21,32 @@ stop()
   endmqm $MQ_QMGR_NAME
 }
 
-config()
+parameterCheck()
 {
   : ${MQ_QMGR_NAME?"ERROR: You need to set the MQ_QMGR_NAME environment variable"}
+
+  # We want to do parameter checking early as then we can stop and error early before it looks
+  # like everything is going to be ok (when it won't)
+  if [ ! -z ${MQ_TLS_KEYSTORE+x} ]; then
+    if [ -z ${MQ_TLS_PASSPHRASE+x} ]; then
+      echo "Error: If you supply MQ_TLS_KEYSTORE, you must supply MQ_TLS_PASSPHRASE"
+      exit 1;
+    fi
+  fi
+}
+
+config()
+{
   # Populate and update the contents of /var/mqm - this is needed for
 	# bind-mounted volumes, and also to migrate data from previous versions of MQ
 
   setup-var-mqm.sh
+
+  if [ -z "${MQ_DISABLE_WEB_CONSOLE}" ]; then
+    echo $MQ_ADMIN_PASSWORD
+    # Start the web console, if it's been installed
+    which strmqweb && setup-mqm-web.sh
+  fi
 
   ls -l /var/mqm
   source /opt/mqm/bin/setmqenv -s
@@ -40,6 +59,11 @@ config()
     echo "Checking filesystem..."
     amqmfsck /var/mqm
     echo "----------------------------------------"
+    MQ_DEV=${MQ_DEV:-"true"}
+    if [ "${MQ_DEV}" == "true" ]; then
+      # Turns on early adopt if we're using Developer defaults
+      export AMQ_EXTRA_QM_STANZAS=Channels:ChlauthEarlyAdopt=Y
+    fi
     crtmqm -q ${MQ_QMGR_NAME} || true
     if [ ${MQ_QMGR_CMDLEVEL+x} ]; then
       # Enables the specified command level, then stops the queue manager
@@ -56,11 +80,8 @@ config()
   done
   set -e
 
-  # Start the web console, if it's been installed
-  if [ -e /etc/mqwebuser.xml ]; then
-    su -l mqm -c "cp /etc/mqwebuser.xml /var/mqm/web/installations/Installation1/servers/mqweb/mqwebuser.xml"
-  fi
-  which strmqweb && su mqm -c "bash strmqweb &"
+  echo "----------------------------------------"
+  mq-dev-config.sh ${MQ_QMGR_NAME}
   echo "----------------------------------------"
 }
 
@@ -95,6 +116,7 @@ monitor()
 }
 
 mq-license-check.sh
+parameterCheck
 config
 trap stop SIGTERM SIGINT
 monitor

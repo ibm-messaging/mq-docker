@@ -65,10 +65,10 @@ RUN export DEBIAN_FRONTEND=noninteractive \
   && echo "mq:$(dspmqver -b -f 2)" > /etc/debian_chroot \
   && rm -rf /var/mqm
 
-COPY mqwebuser.xml /etc/mqwebuser.xml
-
 COPY *.sh /usr/local/bin/
 COPY *.mqsc /etc/mqm/
+
+COPY mq-dev-config /etc/mqm/mq-dev-config
 
 RUN chmod +x /usr/local/bin/*.sh
 
