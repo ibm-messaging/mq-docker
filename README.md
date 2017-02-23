@@ -1,4 +1,4 @@
-# contents
+# Contents
 * [Overview](#overview)
 * [Docker Hub](#docker-hub)
 * [Preparing your Docker host](#preparing-your-docker-host)
@@ -7,10 +7,10 @@
     * [Running with the default configuration](#running-with-the-default-configuration)
     * [Running on Bluemix with volumes](#running-on-bluemix-with-volumes)
     * [Customizing the queue manager configuration](#customizing-the-queue-manager-configuration)
-	  * [Running MQ commands](#running-mq-commands)
-	  * [Installed components](#installed-components)
-	  * [MQ Developer Defaults](#mq-developer-defaults)
-	  * [Customizing MQ Developer Defaults](#customizing-mq-developer-defaults)
+    * [Running MQ commands](#running-mq-commands)
+    * [Installed components](#installed-components)
+    * [MQ Developer Defaults](#mq-developer-defaults)
+    * [Customizing MQ Developer Defaults](#customizing-mq-developer-defaults)
     * [Web Console](#web-console)
     * [List of all Environment variables supported by this image](#list-of-all-environment-variables supported by this image)
 * [Troubleshooting](#troubleshooting)
