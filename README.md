@@ -26,8 +26,9 @@ Run [IBM® MQ](http://www-03.ibm.com/software/products/en/ibm-mq) in a Docker co
 # Docker Hub
 The image is available on Docker Hub as [`ibmcom/mq`](https://hub.docker.com/r/ibmcom/mq/) with the following tags:
 
-  * `9`, `latest` ([Dockerfile](https://github.com/ibm-messaging/mq-docker/blob/master/server/Dockerfile))
-  * `8` ([Dockerfile](https://github.com/ibm-messaging/mq-docker/blob/master/server/Dockerfile-mq8))
+  * `9.0.1`, `latest` ([Dockerfile](https://github.com/ibm-messaging/mq-docker/blob/master/server/Dockerfile))
+  * `9` ([Dockerfile](https://github.com/ibm-messaging/mq-docker/blob/mq-9-lts/Dockerfile))
+  * `8` ([Dockerfile](https://github.com/ibm-messaging/mq-docker/blob/mq-8/Dockerfile))
 
 # Preparing your Docker host
 You need to make sure that you either have a Linux kernel version of V3.16, or else you need to add the [`--ipc host`](http://docs.docker.com/reference/run/#ipc-settings) option when you run an MQ container.  The reason for this is that IBM MQ uses shared memory, and on Linux kernels prior to V3.16, containers are usually limited to 32 MB of shared memory.  In a [change](https://git.kernel.org/cgit/linux/kernel/git/mhocko/mm.git/commit/include/uapi/linux/shm.h?id=060028bac94bf60a65415d1d55a359c3a17d5c31
@@ -38,12 +39,6 @@ After extracting the code from this repository, you can build an image with the 
 
 ```
 sudo docker build --tag mq .
-```
-
-To build alternative versions, you can use commands similar to the following:
-
-```
-sudo docker build --tag mq:8 --file ./server/Dockerfile-mq8 ./server/
 ```
 
 # Usage
