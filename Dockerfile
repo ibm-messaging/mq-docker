@@ -63,7 +63,10 @@ RUN export DEBIAN_FRONTEND=noninteractive \
   && rm -rf /var/lib/apt/lists/* \
   # Optional: Update the command prompt with the MQ version
   && echo "mq:$(dspmqver -b -f 2)" > /etc/debian_chroot \
-  && rm -rf /var/mqm
+  && rm -rf /var/mqm \
+  # Optional: Set these values for the Bluemix Vulnerability Report
+  && sed -i 's/PASS_MAX_DAYS\t99999/PASS_MAX_DAYS\t90/' /etc/login.defs \
+  && sed -i 's/PASS_MIN_DAYS\t0/PASS_MIN_DAYS\t1/' /etc/login.defs
 
 COPY *.sh /usr/local/bin/
 COPY *.mqsc /etc/mqm/
