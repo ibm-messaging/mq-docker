@@ -112,7 +112,7 @@ fi
 #Set default unless it is set.
 MQ_DEV=${MQ_DEV:-"true"}
 MQ_ADMIN_NAME="admin"
-MQ_ADMIN_PASSWORD=${MQ_ADMIN_PASSWORD:-"admin"}
+MQ_ADMIN_PASSWORD=${MQ_ADMIN_PASSWORD:-"passw0rd"}
 MQ_APP_NAME="app"
 MQ_APP_PASSWORD=${MQ_APP_PASSWORD:-""}
 

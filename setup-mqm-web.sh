@@ -106,7 +106,7 @@ MQ_INSTALLATION=`dspmqver -b -f 512`
 DATA_PATH=`dspmqver -b -f 4096`
 MQ_ADMIN_NAME="admin"
 echo $MQ_ADMIN_PASSWORD
-MQ_ADMIN_PASSWORD=${MQ_ADMIN_PASSWORD:-"admin"}
+MQ_ADMIN_PASSWORD=${MQ_ADMIN_PASSWORD:-"passw0rd"}
 
 if [ ! -e "/tmp/webTemp" ]; then
   mkdir -p /tmp/webTemp

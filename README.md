@@ -26,7 +26,7 @@ Run [IBM® MQ](http://www-03.ibm.com/software/products/en/ibm-mq) in a Docker co
 # Docker Hub
 The image is available on Docker Hub as [`ibmcom/mq`](https://hub.docker.com/r/ibmcom/mq/) with the following tags:
 
-  * `9.0.1`, `latest` ([Dockerfile](https://github.com/ibm-messaging/mq-docker/blob/master/server/Dockerfile))
+  * `9 CD`, `latest` ([Dockerfile](https://github.com/ibm-messaging/mq-docker/blob/master/server/Dockerfile))
   * `9` ([Dockerfile](https://github.com/ibm-messaging/mq-docker/blob/mq-9-lts/Dockerfile))
   * `8` ([Dockerfile](https://github.com/ibm-messaging/mq-docker/blob/mq-8/Dockerfile))
 
@@ -67,7 +67,7 @@ Also note that the filesystem for the mounted volume directory (`/var/example` i
 If you wish to run a queue manager with default configuration and a listener on port 1414, but using a Bluemix volume to store your data you will need to mount the volume in a different directory than `/var/mqm`. When using a volume in Bluemix, special actions need to be taken in order to mount the IBM MQ data directory with the correct permissions on the volume. These actions are performed in the `setup-var-mqm.sh` script. The script is configured to look for a directory called `/mnt/mqm`, if it finds this then it will perform the special actions to create the IBM MQ data directory. When using mounting a volume to a Bluemix container you should mount the volume to the `/mnt/mqm` directory:
 
 ```
-cf ic run \
+bx ic run \
   --env LICENSE=accept \
   --env MQ_QMGR_NAME=QM1 \
   --volume /var/example:/mnt/mqm \
@@ -122,12 +122,12 @@ This image includes the core MQ server, Java, language packs, and GSKit.  Other 
 
 ## MQ Developer Defaults
 
-This image includes the MQ Devloper defaults scripts which are automatically ran during Queue Manager startup. This configures your Queue Manager with a set of default objects that you can use to quickly get started developing with IBM MQ. If you do not want the default objects to be created you can set the `MQ_DEV` environment variable to `false`.
+This image includes the MQ Developer defaults scripts which are automatically ran during Queue Manager startup. This configures your Queue Manager with a set of default objects that you can use to quickly get started developing with IBM MQ. If you do not want the default objects to be created you can set the `MQ_DEV` environment variable to `false`.
 
 #### Users
 **Userid:**   admin
 **Groups:**   mqm
-**Password:** admin
+**Password:** passw0rd
 
 **Userid:**   app
 **Groups:**   mqclient
@@ -160,8 +160,8 @@ DEV.BASE.TOPIC - With a topic string of `dev/`.
 The MQ Developer Defaults supports some customization options, these are all controlled using environment variables:
 
 * **MQ_DEV** - Set this to `false` to stop the Default objects being created.
-* **MQ_ADMIN_PASSWORD** - Changes the password of the `admin` user
-* **MQ_APP_PASSWORD** - Changes the password of the app user. If set, this will cause the `DEV.APP.SVRCONN` channel to become secured and only allow connections that supply a valid userid and password.
+* **MQ_ADMIN_PASSWORD** - Changes the password of the `admin` user. Must be at least 8 characters long.
+* **MQ_APP_PASSWORD** - Changes the password of the app user. If set, this will cause the `DEV.APP.SVRCONN` channel to become secured and only allow connections that supply a valid userid and password. Must be at least 8 characters long.
 * **MQ_TLS_KEYSTORE** - Allows you to supply the location of a PKCS#12 keystore containing a single certificate which you want to use in both the web console and the queue manager. Requires `MQ_TLS_PASSPHRASE`. When enabled the channels created will be secured using the `TLS_RSA_WITH_AES_256_GCM_SHA384` CipherSpec. *Note*: you will need to make the keystore available inside your container, this can be done by mounting a volume to your container.
 * **MQ_TLS_PASSPHRASE** - Passphrase for the keystore referenced in `MQ_TLS_KEYSTORE`.
 
@@ -169,12 +169,12 @@ The MQ Developer Defaults supports some customization options, these are all con
 
 By default the image will start the IBM MQ Web Console that allows you to administer your Queue Manager running on your container. When the web console has been started, you can access it by opening a web browser and navigating to https://<Container IP>:9443/ibmmq/console. Where <Container IP> is replaced by the IP address of your running container.
 
-When you navigate to this page you may be presented by a security exception warning. This happens because by default the web console creates a self-signed certificate to use for the HTTPS operations. This certificate is not trusted by your browser and has an incorrect distinguished name.
+When you navigate to this page you may be presented with a security exception warning. This happens because, by default, the web console creates a self-signed certificate to use for the HTTPS operations. This certificate is not trusted by your browser and has an incorrect distinguished name.
 
 If you chose to accept the security warning, you will be presented with the login menu for the IBM MQ Web Console. The default login for the console is:
 
 * **User:** admin
-* **Password:** admin
+* **Password:** passw0rd
 
 If you wish to change the password for the admin user, this can be done using the `MQ_ADMIN_PASSWORD` environment variable. If you supply a PKCS#12 keystore using the `MQ_TLS_KEYSTORE` environment variable, then the web console will be configured to use the certificate inside the keystore for HTTPS operations.
 
@@ -187,8 +187,8 @@ If you do not wish the web console to run, you can disable it by setting the env
 * **MQ_QMGR_NAME** - Set this to the name you want your Queue Manager to be created with.
 * **MQ_QMGR_CMDLEVEL** - Set this to the `CMDLEVEL` you wish your Queue Manager to be started with.
 * **MQ_DEV** - Set this to `false` to stop the Default objects being created.
-* **MQ_ADMIN_PASSWORD** - Changes the password of the `admin` user
-* **MQ_APP_PASSWORD** - Changes the password of the app user. If set, this will cause the `DEV.APP.SVRCONN` channel to become secured and only allow connections that supply a valid userid and password.
+* **MQ_ADMIN_PASSWORD** - Changes the password of the `admin` user. Must be at least 8 characters long.
+* **MQ_APP_PASSWORD** - Changes the password of the app user. If set, this will cause the `DEV.APP.SVRCONN` channel to become secured and only allow connections that supply a valid userid and password. Must be at least 8 characters long.
 * **MQ_TLS_KEYSTORE** - Allows you to supply the location of a PKCS#12 keystore containing a single certificate which you want to use in both the web console and the queue manager. Requires `MQ_TLS_PASSPHRASE`. When enabled the channels created will be secured using the `TLS_RSA_WITH_AES_256_GCM_SHA384` CipherSpec. *Note*: you will need to make the keystore available inside your container, this can be done by mounting a volume to your container.
 * **MQ_TLS_PASSPHRASE** - Passphrase for the keystore referenced in `MQ_TLS_KEYSTORE`.
 * **MQ_DISABLE_WEB_CONSOLE** - Set this to `true` if you want to disable the Web Console from being started.
