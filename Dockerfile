@@ -49,7 +49,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
   && tar -zxvf ./*.tar.gz \
   # Recommended: Create the mqm user ID with a fixed UID and group, so that the file permissions work between different images
   && groupadd --gid 1000 mqm \
-  && useradd --uid 1000 --gid mqm --home-dir /var/mqm mqm \
+  && useradd --uid 1000 --gid mqm mqm \
   && usermod -G mqm root \
   && cd /tmp/mq/MQServer \
   # Accept the MQ license
@@ -62,21 +62,23 @@ RUN export DEBIAN_FRONTEND=noninteractive \
   && rm -rf /tmp/mq \
   && rm -rf /var/lib/apt/lists/* \
   # Optional: Update the command prompt with the MQ version
-  && echo "mq:$(dspmqver -b -f 2)" > /etc/debian_chroot
-
-COPY mqwebuser.xml /var/mqm/web/installations/Installation1/servers/mqweb/mqwebuser.xml
+  && echo "mq:$(dspmqver -b -f 2)" > /etc/debian_chroot \
+  && rm -rf /var/mqm \
+  # Optional: Set these values for the Bluemix Vulnerability Report
+  && sed -i 's/PASS_MAX_DAYS\t99999/PASS_MAX_DAYS\t90/' /etc/login.defs \
+  && sed -i 's/PASS_MIN_DAYS\t0/PASS_MIN_DAYS\t1/' /etc/login.defs \
+  && sed -i 's/password\t\[success=1 default=ignore\]\tpam_unix\.so obscure sha512/password\t[success=1 default=ignore]\tpam_unix.so obscure sha512 minlen=8/' /etc/pam.d/common-password
 
 COPY *.sh /usr/local/bin/
 COPY *.mqsc /etc/mqm/
+
+COPY mq-dev-config /etc/mqm/mq-dev-config
 
 RUN chmod +x /usr/local/bin/*.sh
 
 # Always use port 1414 (the Docker administrator can re-map ports at runtime)
 # Expose port 9443 for the web console
 EXPOSE 1414 9443
-
-# Always put the MQ data directory in a Docker volume
-VOLUME /var/mqm
 
 ENV LANG=en_US.UTF-8
 

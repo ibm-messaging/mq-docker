@@ -9,6 +9,8 @@
 * Update to MQ V9.0.1, adding the web console on port 9443.
 * Update base image to Ubuntu 16.04
 * Set version number in command prompt dynamically
+* Bluemix Volume support added. (See: `setup-var-mqm.sh`)
+* Added MQ Developer Defaults
 
 ## 1.0.2 (2016-11-02)
 * Add MQ V9
