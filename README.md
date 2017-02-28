@@ -9,10 +9,10 @@
     * [Customizing the queue manager configuration](#customizing-the-queue-manager-configuration)
     * [Running MQ commands](#running-mq-commands)
     * [Installed components](#installed-components)
-    * [MQ Developer Defaults](#mq-developer-defaults)
-    * [Customizing MQ Developer Defaults](#customizing-mq-developer-defaults)
-    * [Web Console](#web-console)
-    * [List of all Environment variables supported by this image](#list-of-all-environment-variables supported by this image)
+    * [MQ developer defaults](#mq-developer-defaults)
+    * [Customizing MQ developer defaults](#customizing-mq-developer-defaults)
+    * [Web console](#web-console)
+    * [List of all environment variables supported by this image](#list-of-all-environment-variables supported by this image)
 * [Troubleshooting](#troubleshooting)
     * [Container command not found or does not exist](#container-command-not-found-or-does-not-exist)
     * [AMQ7017: Log not available](#amq7017-log-not-available)
@@ -26,8 +26,8 @@ Run [IBM® MQ](http://www-03.ibm.com/software/products/en/ibm-mq) in a Docker co
 # Docker Hub
 The image is available on Docker Hub as [`ibmcom/mq`](https://hub.docker.com/r/ibmcom/mq/) with the following tags:
 
-  * `9 CD`, `latest` ([Dockerfile](https://github.com/ibm-messaging/mq-docker/blob/master/server/Dockerfile))
-  * `9` ([Dockerfile](https://github.com/ibm-messaging/mq-docker/blob/mq-9-lts/Dockerfile))
+  * `cd`, `9-cd`, `9`, `latest` ([Dockerfile](https://github.com/ibm-messaging/mq-docker/blob/master/server/Dockerfile))
+  * `lts`, `9-lts` ([Dockerfile](https://github.com/ibm-messaging/mq-docker/blob/mq-9-lts/Dockerfile))
   * `8` ([Dockerfile](https://github.com/ibm-messaging/mq-docker/blob/mq-8/Dockerfile))
 
 # Preparing your Docker host
@@ -47,14 +47,15 @@ In order to use the image, it is necessary to accept the terms of the IBM MQ lic
 This image is primarily intended to be used as an example base image for your own MQ images.
 
 ## Running with the default configuration
-You can run a queue manager with the default configuration and a listener on port 1414 using the following command.  Note that the default configuration is locked-down from a security perspective, so you will need to customize the configuration in order to effectively use the queue manager.  For example, the following command creates and starts a queue manager called `QM1`, and maps port 1414 on the host to the MQ listener on port 1414 inside the container:
+You can run a queue manager with the default configuration and a listener on port 1414 using the following command.  Note that the default configuration is locked-down from a security perspective, so you will need to customize the configuration in order to effectively use the queue manager.  For example, the following command creates and starts a queue manager called `QM1`, and maps port 1414 on the host to the MQ listener on port 1414 inside the container, as well as port 9443 on the host to the web console on port 9443 inside the container:
 
 ```
 sudo docker run \
   --env LICENSE=accept \
   --env MQ_QMGR_NAME=QM1 \
-  --volume /var/example:/var/mqm \
+  --volume /var/example:/mnt/mqm \
   --publish 1414:1414 \
+  --publish 9443:9443 \
   --detach \
   mq
 ```
@@ -63,8 +64,8 @@ Note that in this example, the name "mq" is the image tag you used in the previo
 
 Also note that the filesystem for the mounted volume directory (`/var/example` in the above example) must be [supported](http://www-01.ibm.com/support/knowledgecenter/SSFKSJ_9.0.0/com.ibm.mq.pla.doc/q005820_.htm?lang=en).
 
-## Running on Bluemix with volumes
-If you wish to run a queue manager with default configuration and a listener on port 1414, but using a Bluemix volume to store your data you will need to mount the volume in a different directory than `/var/mqm`. When using a volume in Bluemix, special actions need to be taken in order to mount the IBM MQ data directory with the correct permissions on the volume. These actions are performed in the `setup-var-mqm.sh` script. The script is configured to look for a directory called `/mnt/mqm`, if it finds this then it will perform the special actions to create the IBM MQ data directory. When using mounting a volume to a Bluemix container you should mount the volume to the `/mnt/mqm` directory:
+## Running on IBM Bluemix with volumes
+If you wish to run a queue manager with default configuration and a listener on port 1414, but using an IBM Bluemix volume to store your data you will need to mount the volume in a different directory than `/var/mqm`. When using a volume in Bluemix, special actions need to be taken in order to mount the IBM MQ data directory with the correct permissions on the volume. These actions are performed in the `setup-var-mqm.sh` script. The script is configured to look for a directory called `/mnt/mqm`, if it finds this then it will perform the special actions to create the IBM MQ data directory. When using mounting a volume to a Bluemix container you should mount the volume to the `/mnt/mqm` directory:
 
 ```
 bx ic run \

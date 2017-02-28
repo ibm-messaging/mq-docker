@@ -2,7 +2,7 @@
 
 ## 2.0.0 (unreleased)
 ### Action required
-* Ensure that you use the `REPLACE` keyword in all of your `DEFINE` MQSC statements.  With this chance, any supplied MQSC files are run *every* time the queue manager runs.  This allows you to update the MQSC file, re-build the image, and then have the changes applied when you start a container based on that new image.
+* Ensure that you use the `REPLACE` keyword in all of your `DEFINE` MQSC statements.  With this change, any supplied MQSC files are run *every* time the queue manager runs.  This allows you to update the MQSC file, re-build the image, and then have the changes applied when you start a container based on that new image.
 * Code has been re-structured to use git branches for older versions of MQ.
 
 ### Other notable changes

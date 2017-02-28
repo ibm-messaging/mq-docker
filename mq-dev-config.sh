@@ -1,6 +1,6 @@
 #!/bin/bash
 # -*- mode: sh -*-
-# © Copyright IBM Corporation 2015, 2016
+# © Copyright IBM Corporation 2017
 #
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -58,32 +58,32 @@ configure_tls()
   local -r LOCATION=${MQ_TLS_KEYSTORE}
 
   if [ ! -e ${LOCATION} ]; then
-    echo "Error: The keystore '${LOCATION}' referenced in MQ_TLS_KEYSTORE does not exist"
+    echo "Error: The key store '${LOCATION}' referenced in MQ_TLS_KEYSTORE does not exist"
     exit 1
   fi
 
-  #create keystore
+  # Create keystore
   if [ ! -e "/tmp/tlsTemp/key.kdb" ]; then
-    #Keystore does not exists
+    # Keystore does not exist
     runmqakm -keydb -create -db /tmp/tlsTemp/key.kdb -pw ${PASSPHRASE} -stash
   fi
 
-  #create stash file
+  # Create stash file
   if [ ! -e "/tmp/tlsTemp/key.sth" ]; then
-    #No stash file.... create it!
+    # No stash file, so create it
     runmqakm -keydb -stashpw -db /tmp/tlsTemp/key.kdb -pw ${PASSPHRASE}
   fi
 
-  #Import certificate
+  # Import certificate
   runmqakm -cert -import -file ${LOCATION} -pw ${PASSPHRASE} -target /tmp/tlsTemp/key.kdb -target_pw ${PASSPHRASE}
 
-  #Find certificate to rename it to something MQ can use
+  # Find certificate to rename it to something MQ can use
   CERT=`runmqakm -cert -list -db /tmp/tlsTemp/key.kdb -pw ${PASSPHRASE} | egrep -m 1 "^\\**-"`
   CERTL=`echo ${CERT} | sed -e s/^\\**-//`
   CERTL=${CERTL:1}
-  echo "We will use certificate with label ${CERTL}"
+  echo "Using certificate with label ${CERTL}"
 
-  #Rename certificate
+  # Rename certificate
   runmqakm -cert -rename -db /tmp/tlsTemp/key.kdb -pw ${PASSPHRASE} -label "${CERTL}" -new_label queuemanagercertificate
 
   # Now copy the key files
@@ -109,14 +109,14 @@ if [ ! -z ${MQ_TLS_KEYSTORE+x} ]; then
   fi
 fi
 
-#Set default unless it is set.
+# Set default unless it is set
 MQ_DEV=${MQ_DEV:-"true"}
 MQ_ADMIN_NAME="admin"
 MQ_ADMIN_PASSWORD=${MQ_ADMIN_PASSWORD:-"passw0rd"}
 MQ_APP_NAME="app"
 MQ_APP_PASSWORD=${MQ_APP_PASSWORD:-""}
 
-#Set needed variables to point to various MQ directories
+# Set needed variables to point to various MQ directories
 DATA_PATH=`dspmqver -b -f 4096`
 INSTALLATION=`dspmqver -b -f 512`
 
@@ -135,12 +135,12 @@ echo "Configuring admin user"
 configure_os_user 1001 1000 MQ_ADMIN_NAME MQ_ADMIN_PASSWORD /home/admin
 
 if [ "${MQ_DEV}" == "true" ]; then
-  echo "Configuring default objects for QM: $1"
+  echo "Configuring default objects for queue manager: $1"
   set +e
   runmqsc $1 < /etc/mqm/mq-dev-config
   echo "ALTER CHANNEL('DEV.APP.SVRCONN') CHLTYPE(SVRCONN) MCAUSER('${MQ_APP_NAME}')" | runmqsc $1
 
-  #If client password set to "" allow users to connect to application channel without a userid
+  # If client password set to "" allow users to connect to application channel without a userid
   if [ "${MQ_APP_PASSWORD}" == "" ]; then
     echo "SET CHLAUTH('DEV.APP.SVRCONN') TYPE(ADDRESSMAP) ADDRESS('*') USERSRC(CHANNEL) CHCKCLNT(ASQMGR) ACTION(REPLACE)" | runmqsc $1
   fi
@@ -149,11 +149,11 @@ fi
 
 if [ ! -z ${MQ_TLS_KEYSTORE+x} ]; then
   if [ ! -e "${DATA_PATH}/qmgrs/$1/ssl/key.kdb" ]; then
-    echo "Configuring TLS for QM $1"
+    echo "Configuring TLS for queue manager $1"
     mkdir -p /tmp/tlsTemp
     chown mqm:mqm /tmp/tlsTemp
     configure_tls $1
   else
-    echo "A Key store already exists at '${DATA_PATH}/qmgrs/$1/ssl/key.kdb'"
+    echo "A key store already exists at '${DATA_PATH}/qmgrs/$1/ssl/key.kdb'"
   fi
 fi
