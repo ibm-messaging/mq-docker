@@ -1,4 +1,4 @@
-# © Copyright IBM Corporation 2015, 2016
+# © Copyright IBM Corporation 2015, 2017
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,18 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM ubuntu:14.04
+FROM ubuntu:16.04
 
-MAINTAINER Arthur Barr <arthur.barr@uk.ibm.com>
+LABEL maintainer "Arthur Barr <arthur.barr@uk.ibm.com>"
+
+# The URL to download the MQ installer from in tar.gz format
+ARG MQ_URL=http://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/messaging/mqadv/mqadv_dev901_linux_x86-64.tar.gz
+
+# The MQ packages to install
+ARG MQ_PACKAGES="MQSeriesRuntime-*.rpm MQSeriesServer-*.rpm MQSeriesMsg*.rpm MQSeriesJava*.rpm MQSeriesJRE*.rpm MQSeriesGSKit*.rpm MQSeriesWeb*.rpm"
 
 RUN export DEBIAN_FRONTEND=noninteractive \
-  # The URL to download the MQ installer from in tar.gz format
-  && MQ_URL=http://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/messaging/mqadv/mqadv_dev80_linux_x86-64.tar.gz \
-  # The MQ packages to install
-  && MQ_PACKAGES="MQSeriesRuntime-*.rpm MQSeriesServer-*.rpm MQSeriesMsg*.rpm MQSeriesJava*.rpm MQSeriesJRE*.rpm MQSeriesGSKit*.rpm" \
-  # Optional: Update the command prompt
-  && echo "mq:8.0" > /etc/debian_chroot \
-  # Install additional packages required by this install process and the runtime scripts
+  # Install additional packages required by MQ, this install process and the runtime scripts
   && apt-get update -y \
   && apt-get install -y --no-install-recommends \
     bash \
@@ -49,7 +49,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
   && tar -zxvf ./*.tar.gz \
   # Recommended: Create the mqm user ID with a fixed UID and group, so that the file permissions work between different images
   && groupadd --gid 1000 mqm \
-  && useradd --uid 1000 --gid mqm --home-dir /var/mqm mqm \
+  && useradd --uid 1000 --gid mqm mqm \
   && usermod -G mqm root \
   && cd /tmp/mq/MQServer \
   # Accept the MQ license
@@ -59,20 +59,27 @@ RUN export DEBIAN_FRONTEND=noninteractive \
   # Recommended: Set the default MQ installation (makes the MQ commands available on the PATH)
   && /opt/mqm/bin/setmqinst -p /opt/mqm -i \
   # Clean up all the downloaded files
-  && rm -rf /tmp/mq
+  && rm -rf /tmp/mq \
+  && rm -rf /var/lib/apt/lists/* \
+  # Optional: Update the command prompt with the MQ version
+  && echo "mq:$(dspmqver -b -f 2)" > /etc/debian_chroot \
+  && rm -rf /var/mqm \
+  # Optional: Set these values for the Bluemix Vulnerability Report
+  && sed -i 's/PASS_MAX_DAYS\t99999/PASS_MAX_DAYS\t90/' /etc/login.defs \
+  && sed -i 's/PASS_MIN_DAYS\t0/PASS_MIN_DAYS\t1/' /etc/login.defs \
+  && sed -i 's/password\t\[success=1 default=ignore\]\tpam_unix\.so obscure sha512/password\t[success=1 default=ignore]\tpam_unix.so obscure sha512 minlen=8/' /etc/pam.d/common-password
 
 COPY *.sh /usr/local/bin/
 COPY *.mqsc /etc/mqm/
 
-# Support the latest functional cmdlevel by default
-ENV MQ_QMGR_CMDLEVEL=802
+COPY mq-dev-config /etc/mqm/mq-dev-config
 
 RUN chmod +x /usr/local/bin/*.sh
 
 # Always use port 1414 (the Docker administrator can re-map ports at runtime)
-EXPOSE 1414
+# Expose port 9443 for the web console
+EXPOSE 1414 9443
 
-# Always put the MQ data directory in a Docker volume
-VOLUME /var/mqm
+ENV LANG=en_US.UTF-8
 
 ENTRYPOINT ["mq.sh"]
