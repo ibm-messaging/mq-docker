@@ -118,7 +118,6 @@ else
 fi
 
 if [ ! -e "${DATA_PATH}/web/installations/${MQ_INSTALLATION}/angular.persistence/admin.json" ]; then
-  echo "Web QM = ${MQ_QMGR_NAME}"
   sed -i "s/<QM>/${MQ_QMGR_NAME}/g" /etc/mqm/admin.json
   chown mqm:mqm /etc/mqm/admin.json
   chmod 640 /etc/mqm/admin.json
