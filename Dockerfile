@@ -71,6 +71,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
 
 COPY *.sh /usr/local/bin/
 COPY *.mqsc /etc/mqm/
+COPY admin.json /etc/mqm/
 
 COPY mq-dev-config /etc/mqm/mq-dev-config
 
