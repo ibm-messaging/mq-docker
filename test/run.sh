@@ -48,6 +48,7 @@ docker run \
   --env TEMP_DIR=${TEMP_DIR} \
   mq-docker-test
 
+sleep 3
 # Clean up
 docker network rm ${NETWORK}
 rm -rf ${TEMP_DIR}
