@@ -117,6 +117,14 @@ else
   echo "Using existing Web Server configuration."
 fi
 
+if [ ! -e "${DATA_PATH}/web/installations/${MQ_INSTALLATION}/angular.persistence/admin.json" ]; then
+  sed -i "s/<QM>/${MQ_QMGR_NAME}/g" /etc/mqm/admin.json
+  chown mqm:mqm /etc/mqm/admin.json
+  chmod 640 /etc/mqm/admin.json
+  su -c "mkdir -p ${DATA_PATH}/web/installations/${MQ_INSTALLATION}/angular.persistence" -l mqm
+  su -c "cp -PTv /etc/mqm/admin.json ${DATA_PATH}/web/installations/${MQ_INSTALLATION}/angular.persistence/admin.json" -l mqm
+fi
+
 #Run the server as mqm
 su -l mqm -c "bash strmqweb &"
 echo "Web Server started"
