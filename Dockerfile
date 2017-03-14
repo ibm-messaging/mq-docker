@@ -35,6 +35,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
     gawk \
     grep \
     libc-bin \
+    lsb-release \
     mount \
     passwd \
     procps \
