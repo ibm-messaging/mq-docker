@@ -12,7 +12,7 @@
     * [MQ developer defaults](#mq-developer-defaults)
     * [Customizing MQ developer defaults](#customizing-mq-developer-defaults)
     * [Web console](#web-console)
-    * [List of all environment variables supported by this image](#list-of-all-environment-variables supported by this image)
+    * [List of all environment variables supported by this image](#list-of-all-environment-variables-supported-by-this-image)
 * [Troubleshooting](#troubleshooting)
     * [Container command not found or does not exist](#container-command-not-found-or-does-not-exist)
     * [AMQ7017: Log not available](#amq7017-log-not-available)
