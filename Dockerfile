@@ -17,10 +17,10 @@ FROM ubuntu:16.04
 LABEL maintainer "Arthur Barr <arthur.barr@uk.ibm.com>"
 
 # The URL to download the MQ installer from in tar.gz format
-ARG MQ_URL=http://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/messaging/mqadv/mqadv_dev901_linux_x86-64.tar.gz
+ARG MQ_URL=http://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/messaging/mqadv/mqadv_dev902_ubuntu_x86-64.tar.gz
 
 # The MQ packages to install
-ARG MQ_PACKAGES="MQSeriesRuntime-*.rpm MQSeriesServer-*.rpm MQSeriesMsg*.rpm MQSeriesJava*.rpm MQSeriesJRE*.rpm MQSeriesGSKit*.rpm MQSeriesWeb*.rpm"
+ARG MQ_PACKAGES="ibmmq-server ibmmq-java ibmmq-jre ibmmq-gskit ibmmq-web"
 
 RUN export DEBIAN_FRONTEND=noninteractive \
   # Install additional packages required by MQ, this install process and the runtime scripts
@@ -39,7 +39,6 @@ RUN export DEBIAN_FRONTEND=noninteractive \
     mount \
     passwd \
     procps \
-    rpm \
     sed \
     tar \
     util-linux \
@@ -52,14 +51,17 @@ RUN export DEBIAN_FRONTEND=noninteractive \
   && groupadd --gid 1000 mqm \
   && useradd --uid 1000 --gid mqm mqm \
   && usermod -G mqm root \
-  && cd /tmp/mq/MQServer \
+  && cd /tmp/mq/DebianMQServer \
   # Accept the MQ license
   && ./mqlicense.sh -text_only -accept \
-  # Install MQ using the RPM packages
-  && rpm -ivh --force-debian $MQ_PACKAGES \
+  && echo "deb [trusted=yes] file:/tmp/mq/DebianMQServer ./" > /etc/apt/sources.list.d/IBM_MQ.list \
+  # Install MQ using the DEB packages
+  && apt-get update \
+  && apt-get install -y $MQ_PACKAGES \
   # Recommended: Set the default MQ installation (makes the MQ commands available on the PATH)
   && /opt/mqm/bin/setmqinst -p /opt/mqm -i \
   # Clean up all the downloaded files
+  && rm -f /etc/apt/sources.list.d/IBM_MQ.list \
   && rm -rf /tmp/mq \
   # Apply any bug fixes not included in base Ubuntu or MQ image.
   # Don't upgrade everything based on Docker best practices https://docs.docker.com/engine/userguide/eng-image/dockerfile_best-practices/#run
