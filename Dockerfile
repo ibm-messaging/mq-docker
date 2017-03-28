@@ -61,6 +61,8 @@ RUN export DEBIAN_FRONTEND=noninteractive \
   && /opt/mqm/bin/setmqinst -p /opt/mqm -i \
   # Clean up all the downloaded files
   && rm -rf /tmp/mq \
+  && apt-get update -y \
+  && apt-get upgrade -y \
   && rm -rf /var/lib/apt/lists/* \
   # Optional: Update the command prompt with the MQ version
   && echo "mq:$(dspmqver -b -f 2)" > /etc/debian_chroot \
