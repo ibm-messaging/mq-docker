@@ -20,7 +20,7 @@ LABEL maintainer "Arthur Barr <arthur.barr@uk.ibm.com>"
 ARG MQ_URL=https://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/messaging/mqadv/mqadv_dev902_ubuntu_x86-64.tar.gz
 
 # The MQ packages to install
-ARG MQ_PACKAGES="ibmmq-server ibmmq-java ibmmq-jre ibmmq-gskit ibmmq-web"
+ARG MQ_PACKAGES="ibmmq-server ibmmq-java ibmmq-jre ibmmq-gskit ibmmq-web ibmmq-msg-.*"
 
 RUN export DEBIAN_FRONTEND=noninteractive \
   # Install additional packages required by MQ, this install process and the runtime scripts
@@ -70,6 +70,10 @@ RUN export DEBIAN_FRONTEND=noninteractive \
   # Clean up all the downloaded files
   && rm -f /etc/apt/sources.list.d/IBM_MQ.list \
   && rm -rf /tmp/mq \
+  # Apply any bug fixes not included in base Ubuntu or MQ image.
+  # Don't upgrade everything based on Docker best practices https://docs.docker.com/engine/userguide/eng-image/dockerfile_best-practices/#run
+  && apt-get upgrade -y libc6 \
+  # End of bug fixes
   && rm -rf /var/lib/apt/lists/* \
   # Optional: Update the command prompt with the MQ version
   && echo "mq:$(dspmqver -b -f 2)" > /etc/debian_chroot \
