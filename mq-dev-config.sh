@@ -89,15 +89,15 @@ configure_tls()
   # Now copy the key files
   chown mqm:mqm /tmp/tlsTemp/key.*
   chmod 640 /tmp/tlsTemp/key.*
-  su -c "cp -PTv /tmp/tlsTemp/key.kdb ${DATA_PATH}/qmgrs/$1/ssl/key.kdb" -l mqm
-  su -c "cp -PTv /tmp/tlsTemp/key.sth ${DATA_PATH}/qmgrs/$1/ssl/key.sth" -l mqm
+  su -c "cp -PTv /tmp/tlsTemp/key.kdb ${DATA_PATH}/qmgrs/${MQ_QMGR_NAME}/ssl/key.kdb" -l mqm
+  su -c "cp -PTv /tmp/tlsTemp/key.sth ${DATA_PATH}/qmgrs/${MQ_QMGR_NAME}/ssl/key.sth" -l mqm
 
   # Set up Dev default MQ objects
   # Make channel TLS CHANNEL
   # Create SSLPEERMAP Channel Authentication record
   if [ "${MQ_DEV}" == "true" ]; then
-    su -l mqm -c "echo \"ALTER CHANNEL('DEV.APP.SVRCONN') CHLTYPE(SVRCONN) SSLCIPH(TLS_RSA_WITH_AES_256_GCM_SHA384) SSLCAUTH(OPTIONAL)\" | runmqsc $1"
-    su -l mqm -c "echo \"ALTER CHANNEL('DEV.ADMIN.SVRCONN') CHLTYPE(SVRCONN) SSLCIPH(TLS_RSA_WITH_AES_256_GCM_SHA384) SSLCAUTH(OPTIONAL)\" | runmqsc $1"
+    su -l mqm -c "echo \"ALTER CHANNEL('DEV.APP.SVRCONN') CHLTYPE(SVRCONN) SSLCIPH(TLS_RSA_WITH_AES_256_GCM_SHA384) SSLCAUTH(OPTIONAL)\" | runmqsc ${MQ_QMGR_NAME}"
+    su -l mqm -c "echo \"ALTER CHANNEL('DEV.ADMIN.SVRCONN') CHLTYPE(SVRCONN) SSLCIPH(TLS_RSA_WITH_AES_256_GCM_SHA384) SSLCAUTH(OPTIONAL)\" | runmqsc ${MQ_QMGR_NAME}"
   fi
 }
 
@@ -127,33 +127,33 @@ if ! getent group mqclient; then
 fi
 configure_os_user 1002 1002 MQ_APP_NAME MQ_APP_PASSWORD /home/app
 # Set authorities to give access to qmgr, queues and topic
-su -l mqm -c "setmqaut -m $1 -t qmgr -g mqclient +connect +inq"
-su -l mqm -c "setmqaut -m $1 -n \"DEV.**\" -t queue -g mqclient +put +get +browse"
-su -l mqm -c "setmqaut -m $1 -n \"DEV.**\" -t topic -g mqclient +sub +pub"
+su -l mqm -c "setmqaut -m ${MQ_QMGR_NAME} -t qmgr -g mqclient +connect +inq"
+su -l mqm -c "setmqaut -m ${MQ_QMGR_NAME} -n \"DEV.**\" -t queue -g mqclient +put +get +browse"
+su -l mqm -c "setmqaut -m ${MQ_QMGR_NAME} -n \"DEV.**\" -t topic -g mqclient +sub +pub"
 
 echo "Configuring admin user"
 configure_os_user 1001 1000 MQ_ADMIN_NAME MQ_ADMIN_PASSWORD /home/admin
 
 if [ "${MQ_DEV}" == "true" ]; then
-  echo "Configuring default objects for queue manager: $1"
+  echo "Configuring default objects for queue manager: ${MQ_QMGR_NAME}"
   set +e
-  runmqsc $1 < /etc/mqm/mq-dev-config
-  echo "ALTER CHANNEL('DEV.APP.SVRCONN') CHLTYPE(SVRCONN) MCAUSER('${MQ_APP_NAME}')" | runmqsc $1
+  runmqsc ${MQ_QMGR_NAME} < /etc/mqm/mq-dev-config
+  echo "ALTER CHANNEL('DEV.APP.SVRCONN') CHLTYPE(SVRCONN) MCAUSER('${MQ_APP_NAME}')" | runmqsc ${MQ_QMGR_NAME}
 
   # If client password set to "" allow users to connect to application channel without a userid
   if [ "${MQ_APP_PASSWORD}" == "" ]; then
-    echo "SET CHLAUTH('DEV.APP.SVRCONN') TYPE(ADDRESSMAP) ADDRESS('*') USERSRC(CHANNEL) CHCKCLNT(ASQMGR) ACTION(REPLACE)" | runmqsc $1
+    echo "SET CHLAUTH('DEV.APP.SVRCONN') TYPE(ADDRESSMAP) ADDRESS('*') USERSRC(CHANNEL) CHCKCLNT(ASQMGR) ACTION(REPLACE)" | runmqsc ${MQ_QMGR_NAME}
   fi
   set -e
 fi
 
 if [ ! -z ${MQ_TLS_KEYSTORE+x} ]; then
-  if [ ! -e "${DATA_PATH}/qmgrs/$1/ssl/key.kdb" ]; then
-    echo "Configuring TLS for queue manager $1"
+  if [ ! -e "${DATA_PATH}/qmgrs/${MQ_QMGR_NAME}/ssl/key.kdb" ]; then
+    echo "Configuring TLS for queue manager ${MQ_QMGR_NAME}"
     mkdir -p /tmp/tlsTemp
     chown mqm:mqm /tmp/tlsTemp
-    configure_tls $1
+    configure_tls
   else
-    echo "A key store already exists at '${DATA_PATH}/qmgrs/$1/ssl/key.kdb'"
+    echo "A key store already exists at '${DATA_PATH}/qmgrs/${MQ_QMGR_NAME}/ssl/key.kdb'"
   fi
 fi

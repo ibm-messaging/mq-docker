@@ -102,10 +102,16 @@ configure_server_xml()
 
 }
 
+if [ ! -z ${MQ_DISABLE_WEB_CONSOLE+x} ]; then
+  #don't do anything
+  exit 0
+fi
+
+echo "Starting MQ Console"
+
 MQ_INSTALLATION=`dspmqver -b -f 512`
 DATA_PATH=`dspmqver -b -f 4096`
 MQ_ADMIN_NAME="admin"
-echo $MQ_ADMIN_PASSWORD
 MQ_ADMIN_PASSWORD=${MQ_ADMIN_PASSWORD:-"passw0rd"}
 
 if [ ! -e "/tmp/webTemp" ]; then
@@ -127,7 +133,7 @@ fi
 
 #Run the server as mqm
 su -l mqm -c "bash strmqweb &"
-echo "Web Server started"
+echo "MQ Console started"
 
 # Print out the connection info
 IPADDR="$(hostname -I | sed -e 's/[[:space:]]*$//')"
