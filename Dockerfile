@@ -70,6 +70,10 @@ RUN export DEBIAN_FRONTEND=noninteractive \
   # Clean up all the downloaded files
   && rm -f /etc/apt/sources.list.d/IBM_MQ.list \
   && rm -rf /tmp/mq \
+  # Apply any bug fixes not included in base Ubuntu or MQ image.
+  # Don't upgrade everything based on Docker best practices https://docs.docker.com/engine/userguide/eng-image/dockerfile_best-practices/#run
+  && apt-get upgrade -y libc6 \
+  # End of bug fixes
   && rm -rf /var/lib/apt/lists/* \
   # Optional: Update the command prompt with the MQ version
   && echo "mq:$(dspmqver -b -f 2)" > /etc/debian_chroot \
