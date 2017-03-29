@@ -17,7 +17,7 @@ FROM ubuntu:16.04
 LABEL maintainer "Arthur Barr <arthur.barr@uk.ibm.com>"
 
 # The URL to download the MQ installer from in tar.gz format
-ARG MQ_URL=http://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/messaging/mqadv/mqadv_dev902_ubuntu_x86-64.tar.gz
+ARG MQ_URL=https://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/messaging/mqadv/mqadv_dev902_ubuntu_x86-64.tar.gz
 
 # The MQ packages to install
 ARG MQ_PACKAGES="ibmmq-server ibmmq-java ibmmq-jre ibmmq-gskit ibmmq-web"
@@ -28,6 +28,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
   && apt-get install -y --no-install-recommends \
     bash \
     bc \
+    ca-certificates \
     coreutils \
     curl \
     debianutils \
