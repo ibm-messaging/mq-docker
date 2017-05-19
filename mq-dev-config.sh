@@ -19,36 +19,24 @@ set -e
 
 configure_os_user()
 {
-  # The UID of the user to configure
-  local -r ID_NUM=$1
   # The group ID of the user to configure
-  local -r GROUP_NUM=$2
+  local -r GROUP_NAME=$1
   # Name of environment variable containing the user name
-  local -r USER_VAR=$3
+  local -r USER_VAR=$2
   # Name of environment variable containing the password
-  local -r PASSWORD=$4
+  local -r PASSWORD=$3
   # Home directory for the user
-  local -r HOME=$5
+  local -r HOME=$4
   # Determine the login name of the user (assuming it exists already)
-  local -r LOGIN=$(getent passwd ${ID_NUM} | cut -f1 -d:)
-  if [ -z ${!USER_VAR+x} ]; then
-    # MQ_CLIENT_USER is unset
-    if id --user ${ID_NUM}; then
-      userdel --force --remove ${LOGIN} >/dev/null 2>&1
-    fi
-  else
-    # MQ_CLIENT_USER is set
-    if id --user ${ID_NUM}; then
-      # Modify the existing user
-      usermod -l ${!USER_VAR} ${LOGIN}
-    else
-      useradd --uid ${ID_NUM} --gid ${GROUP_NUM} --home ${HOME} ${!USER_VAR}
-    fi
 
-    # Change the user's password (if set)
-    if [ ! "${!PASSWORD}" == "" ]; then
-      echo ${!USER_VAR}:${!PASSWORD} | chpasswd
-    fi
+  # if user does not exist
+  if ! id ${!USER_VAR} 2>1 > /dev/null; then
+    # create
+    useradd --gid ${GROUP_NAME} --home ${HOME} ${!USER_VAR}
+  fi
+  # Change the user's password (if set)
+  if [ ! "${!PASSWORD}" == "" ]; then
+    echo ${!USER_VAR}:${!PASSWORD} | chpasswd
   fi
 }
 
@@ -103,10 +91,7 @@ configure_tls()
 
 # Check valid parameters
 if [ ! -z ${MQ_TLS_KEYSTORE+x} ]; then
-  if [ -z ${MQ_TLS_PASSPHRASE+x} ]; then
-    echo "Error: If you supply MQ_TLS_KEYSTORE, you must supply MQ_TLS_PASSPHRASE"
-    exit 1;
-  fi
+  : ${MQ_TLS_PASSPHRASE?"Error: If you supply MQ_TLS_KEYSTORE, you must supply MQ_TLS_PASSPHRASE"}
 fi
 
 # Set default unless it is set
@@ -123,16 +108,17 @@ INSTALLATION=`dspmqver -b -f 512`
 echo "Configuring app user"
 if ! getent group mqclient; then
   # Group doesn't exist already
-  groupadd --gid 1002 mqclient
+  groupadd mqclient
 fi
-configure_os_user 1002 1002 MQ_APP_NAME MQ_APP_PASSWORD /home/app
+configure_os_user mqclient MQ_APP_NAME MQ_APP_PASSWORD /home/app
+
 # Set authorities to give access to qmgr, queues and topic
 su -l mqm -c "setmqaut -m ${MQ_QMGR_NAME} -t qmgr -g mqclient +connect +inq"
 su -l mqm -c "setmqaut -m ${MQ_QMGR_NAME} -n \"DEV.**\" -t queue -g mqclient +put +get +browse"
 su -l mqm -c "setmqaut -m ${MQ_QMGR_NAME} -n \"DEV.**\" -t topic -g mqclient +sub +pub"
 
 echo "Configuring admin user"
-configure_os_user 1001 1000 MQ_ADMIN_NAME MQ_ADMIN_PASSWORD /home/admin
+configure_os_user mqm MQ_ADMIN_NAME MQ_ADMIN_PASSWORD /home/admin
 
 if [ "${MQ_DEV}" == "true" ]; then
   echo "Configuring default objects for queue manager: ${MQ_QMGR_NAME}"
