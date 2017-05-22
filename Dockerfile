@@ -72,7 +72,8 @@ RUN export DEBIAN_FRONTEND=noninteractive \
   && rm -rf /tmp/mq \
   # Apply any bug fixes not included in base Ubuntu or MQ image.
   # Don't upgrade everything based on Docker best practices https://docs.docker.com/engine/userguide/eng-image/dockerfile_best-practices/#run
-  && apt-get upgrade -y libc6 \
+  && apt-get upgrade -y login \
+  && apt-get upgrade -y passwd \
   # End of bug fixes
   && rm -rf /var/lib/apt/lists/* \
   # Optional: Update the command prompt with the MQ version
