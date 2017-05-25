@@ -1,5 +1,14 @@
 # Change log
 
+## 3.0.0 (2017-xx-xx)
+### Action required
+None
+
+### Other notable changes
+* Updated to MQ V9.0.3
+* Restructured startup scripts
+* Removed fixed UID numbers
+
 ## 2.0.0 (2017-03-11)
 ### Action required
 * Ensure that you use the `REPLACE` keyword in all of your `DEFINE` MQSC statements.  With this change, any supplied MQSC files are run *every* time the queue manager runs.  This allows you to update the MQSC file, re-build the image, and then have the changes applied when you start a container based on that new image.
