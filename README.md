@@ -1,11 +1,12 @@
 # Contents
 * [Overview](#overview)
 * [Docker Hub](#docker-hub)
+* [Bluemix Container Service](#bluemix-container-service)
 * [Preparing your Docker host](#preparing-your-docker-host)
 * [Build](#build)
 * [Usage](#usage)
     * [Running with the default configuration](#running-with-the-default-configuration)
-    * [Running on Bluemix with volumes](#running-on-bluemix-with-volumes)
+    * [Running on Bluemix with volumes](#running-on-ibm-bluemix-with-volumes)
     * [Customizing the queue manager configuration](#customizing-the-queue-manager-configuration)
     * [Running MQ commands](#running-mq-commands)
     * [Installed components](#installed-components)
@@ -29,6 +30,11 @@ The image is available on Docker Hub as [`ibmcom/mq`](https://hub.docker.com/r/i
   * `cd`, `9-cd`, `9`, `latest` ([Dockerfile](https://github.com/ibm-messaging/mq-docker/blob/master/server/Dockerfile))
   * `lts`, `9-lts` ([Dockerfile](https://github.com/ibm-messaging/mq-docker/blob/mq-9-lts/Dockerfile))
   * `8` ([Dockerfile](https://github.com/ibm-messaging/mq-docker/blob/mq-8/Dockerfile))
+  
+# Bluemix Container Service
+This image is available on the Bluemix Container Service as a default image. 
+
+  * `latest` ([catalog](https://console.eu-gb.bluemix.net/catalog/images/ibm-mq?env_id=ibm:yp:eu-gb))
 
 # Preparing your Docker host
 You need to make sure that you either have a Linux kernel version of V3.16, or else you need to add the [`--ipc host`](http://docs.docker.com/reference/run/#ipc-settings) option when you run an MQ container.  The reason for this is that IBM MQ uses shared memory, and on Linux kernels prior to V3.16, containers are usually limited to 32 MB of shared memory.  In a [change](https://git.kernel.org/cgit/linux/kernel/git/mhocko/mm.git/commit/include/uapi/linux/shm.h?id=060028bac94bf60a65415d1d55a359c3a17d5c31
