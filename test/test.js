@@ -336,6 +336,6 @@ describe('MQ Docker sample', function() {
           });
         });
       });
-    }); 
+    });
   });
 });
