@@ -16,8 +16,6 @@
 
 set -e
 
-: ${MQ_QMGR_NAME?"ERROR: You need to set the MQ_QMGR_NAME environment variable"}
-
 # We want to do parameter checking early as then we can stop and error early before it looks
 # like everything is going to be ok (when it won't)
 if [ ! -z ${MQ_TLS_KEYSTORE+x} ]; then

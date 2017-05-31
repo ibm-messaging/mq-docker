@@ -25,12 +25,12 @@ which strmqweb && setup-mqm-web.sh
 echo "----------------------------------------"
 mq-pre-create-setup.sh
 echo "----------------------------------------"
-mq-create-qmgr.sh
+source mq-create-qmgr.sh
 echo "----------------------------------------"
-mq-start-qmgr.sh
+source mq-start-qmgr.sh
 echo "----------------------------------------"
-mq-configure-qmgr.sh
+source mq-configure-qmgr.sh
 echo "----------------------------------------"
-mq-dev-config.sh
+source mq-dev-config.sh
 echo "----------------------------------------"
-exec mq-monitor-qmgr.sh
+exec mq-monitor-qmgr.sh ${MQ_QMGR_NAME}
