@@ -16,12 +16,16 @@
 
 set -e
 
+MQ_QMGR_NAME=$1
+
 state()
 {
   dspmq -n -m ${MQ_QMGR_NAME} | awk -F '[()]' '{ print $4 }'
 }
 
-trap mq-stop-container.sh SIGTERM SIGINT
+trap "source mq-stop-container.sh" SIGTERM SIGINT
+
+echo "Monitoring Queue Manager ${MQ_QMGR_NAME}"
 
 # Loop until "dspmq" says the queue manager is running
 until [ "`state`" == "RUNNING" ]; do
