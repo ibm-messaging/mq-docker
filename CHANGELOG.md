@@ -1,5 +1,17 @@
 # Change log
 
+## 3.0.0 (2017-06-08)
+### Action required
+* Updated to install Ubuntu `.deb` files - Any changes to the `MQ_PACKAGES` variable will now need to use the new package names (for example, "ibmmq-web" instead of "MQSeriesWeb")
+
+### Other notable changes
+* Updated to MQ V9.0.3
+* Migrated from `amqicdir` to new official `crtmqdir` utility
+* Restructured startup scripts
+* Removed fixed UID numbers for developer config
+* Use HTTPS for MQ installer download
+* Reduced image size by purging 32-bit libraries
+
 ## 2.0.0 (2017-03-11)
 ### Action required
 * Ensure that you use the `REPLACE` keyword in all of your `DEFINE` MQSC statements.  With this change, any supplied MQSC files are run *every* time the queue manager runs.  This allows you to update the MQSC file, re-build the image, and then have the changes applied when you start a container based on that new image.

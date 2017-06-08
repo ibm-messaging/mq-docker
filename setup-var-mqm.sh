@@ -21,13 +21,11 @@
 if [ -d "/var/mqm/qmgrs" ]; then
   # User is probably following old instructions to mount a volume into /var/mqm
   echo "Using existing MQ Data under /var/mqm"
-  /opt/mqm/bin/amqicdir -i -f
-  /opt/mqm/bin/amqicdir -s -f
+  /opt/mqm/bin/crtmqdir -a -f
 else
   if [ -L "/var/mqm" ]; then
     echo "/var/mqm is already a symlink."
-    /opt/mqm/bin/amqicdir -i -f
-    /opt/mqm/bin/amqicdir -s -f
+    /opt/mqm/bin/crtmqdir -a -f
   else
     if [ -d "/mnt/mqm/" ]; then
       DATA_DIR=/mnt/mqm/data
@@ -44,8 +42,7 @@ else
         su -c "chmod 775 ${DATA_DIR}" -l mqm
       fi
 
-      /opt/mqm/bin/amqicdir -i -f
-      /opt/mqm/bin/amqicdir -s -f
+      /opt/mqm/bin/crtmqdir -a -f
       su -c "cp -RTnv /var/mqm /mnt/mqm/data" -l mqm
 
       # Remove /var/mqm and replace with a symlink
@@ -53,10 +50,8 @@ else
       ln -s ${DATA_DIR} /var/mqm
       chown -h mqm:mqm /var/mqm
     else
-      #Create the MQ data Directory
-      echo "Running amqicdir"
-      /opt/mqm/bin/amqicdir -i -f
-      /opt/mqm/bin/amqicdir -s -f
+      # Create the MQ data Directory
+      /opt/mqm/bin/crtmqdir -a -f
     fi
   fi
 fi

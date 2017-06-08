@@ -46,23 +46,24 @@ describe('MQ Docker sample', function() {
         done();
       });
     });
-    it('should fail if MQ_QMGR_NAME is not set', function (done) {
-      exec(`docker run --rm --env LICENSE=accept  ${DOCKER_IMAGE}`, function (err, stdout, stderr) {
-        assert.equal(err.code, 1);
-        assert.isTrue(stderr.includes("ERROR"));
-        done();
-      });
-    });
   });
 
   // Utility function to run a container and wait until MQ starts
-  let runContainer = function(options) {
+  let runContainer = function(options, unsetQMName, hostname) {
     return new Promise((resolve, reject) => {
-      let cmd = `docker run -d --env LICENSE=accept --env MQ_QMGR_NAME=${QMGR_NAME} --net ${DOCKER_NETWORK} ${options} ${DOCKER_IMAGE}`;
+      let cmd = "";
+      let qmName = "";
+      if(!unsetQMName){
+        cmd = `docker run -d --env LICENSE=accept --env MQ_QMGR_NAME=${QMGR_NAME} --net ${DOCKER_NETWORK} ${options} ${DOCKER_IMAGE}`;
+        qmName=QMGR_NAME
+      } else{
+        cmd = `docker run -d --env LICENSE=accept --net ${DOCKER_NETWORK} ${options} ${DOCKER_IMAGE}`;
+        qmName=hostname
+      }
       exec(cmd, function (err, stdout, stderr) {
         if (err) reject(err);
         let containerId = stdout.trim();
-        let startStr = `IBM MQ Queue Manager ${QMGR_NAME} is now fully running`;
+        let startStr = `IBM MQ Queue Manager ${qmName} is now fully running`;
         // Run dspmq every second, until the queue manager comes up
         let timer = setInterval(function() {
           exec(`docker logs ${containerId}`, function (err, stdout, stderr) {
@@ -117,6 +118,61 @@ describe('MQ Docker sample', function() {
   describe('with running container', function() {
     let container = null;
     this.timeout(10000);
+
+    describe('and no queue manager variable supplied', function(){
+      let containerName="MQTestQM"
+
+      before(function() {
+        this.timeout(20000);
+        return runContainer("-h " + containerName, true, containerName)
+        .then((details) => {
+          container = details;
+        });
+      });
+      after(function() {
+        return deleteContainer(container.id);
+      });
+      it('should be using the hostname as the queue manager name', function (done) {
+        exec(`docker exec ${container.id} dspmq`, function (err, stdout, stderr) {
+          if (err) throw(err);
+          if (stdout && stdout.includes(containerName)) {
+            // Queue manager is up, so clear the timer
+            done();
+          }
+        });
+      });
+    });
+
+    describe('with running container', function() {
+      let container = null;
+      this.timeout(10000);
+
+      describe('and no queue manager variable supplied but the hostname has invalid characters', function(){
+        let containerName="MQ-Test-QM"
+        let containerValidName="MQTestQM"
+
+        before(function() {
+          this.timeout(20000);
+          return runContainer("-h " + containerName, true, containerValidName)
+          .then((details) => {
+            container = details;
+          });
+        });
+        after(function() {
+          return deleteContainer(container.id);
+        });
+        it('should be using the hostname as the queue manager name without the invalid characters', function (done) {
+          exec(`docker exec ${container.id} dspmq`, function (err, stdout, stderr) {
+            if (err) throw(err);
+            if (stdout && stdout.includes(containerValidName)) {
+              // Queue manager is up, so clear the timer
+              done();
+            }
+          });
+        });
+      });
+    });
+
 
     describe('and implicit volume', function() {
       before(function() {
