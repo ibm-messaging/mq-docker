@@ -1,0 +1,117 @@
+# © Copyright IBM Corporation 2015, 2017
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+FROM ubuntu:16.04
+
+LABEL maintainer "Arthur Barr <arthur.barr@uk.ibm.com>"
+
+# Added support for MQ 7.5 based on the original Dockerfile
+LABEL maintainer "Gabriel Pereira Borges <gpborges@br.ibm.com>"
+
+# The URL to download the MQ installer from in tar.gz format
+ARG MQ_URL=http://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/messaging/mqadv/mqadv_dev75_linux_x86-64.tar.gz
+
+# The MQ packages to install
+ARG MQ_PACKAGES="MQSeriesRuntime-*.rpm MQSeriesServer-*.rpm MQSeriesMsg*.rpm MQSeriesJava*.rpm MQSeriesJRE*.rpm MQSeriesGSKit*.rpm MQSeriesWeb*.rpm"
+
+# Flag to indicate if we should install a fixpack from /fixpack directory or not.
+ARG INSTALL_FIXPACK=false
+
+RUN export DEBIAN_FRONTEND=noninteractive \
+  && ln -s /lib64 /usr/ \
+  # The MQ packages to install
+  # For MQ 7.5 we should use the --nodeps flag and hence, we MUST install MQSeriesRuntime first. All the other packages will depend on it.
+  && MQ_PACKAGES="MQSeriesServer-*.rpm MQSeriesMsg*.rpm MQSeriesJava*.rpm MQSeriesJRE*.rpm MQSeriesGSKit*.rpm" \
+  # Optional: Update the command prompt
+  && echo "mq:7.5" > /etc/debian_chroot \
+
+  # Install additional packages required by MQ, this install process and the runtime scripts
+  && apt-get update -y \
+  && apt-get install -y --no-install-recommends \
+    bash \
+    bc \
+    coreutils \
+    curl \
+    debianutils \
+    findutils \
+    gawk \
+    grep \
+    libc-bin \
+    lsb-release \
+    mount \
+    passwd \
+    procps \
+    rpm \
+    sed \
+    tar \
+    util-linux \
+  # Download and extract the MQ installation files
+  #&& mkdir -p /tmp/mq \
+  && mkdir -p /tmp/mq75 \
+  #&& cd /tmp/mq \
+  && cd /tmp/mq75 \
+  && curl -LO $MQ_URL \
+  && tar -zxvf ./*.tar.gz \
+  # Recommended: Create the mqm user ID with a fixed UID and group, so that the file permissions work between different images
+  && groupadd --gid 1000 mqm \
+  && useradd --uid 1000 --gid mqm mqm \
+  && usermod -G mqm root \
+  # MQ 7.5 package does not contain a MQServer inside the tar.gz package and the next cd line will fail
+  #&& cd /tmp/mq/MQServer \
+  # Cleanup /opt/mqm before starting the install process to avoid "ERROR:   Specified path is not empty"
+  && rm -rf /opt/mqm \
+  # Accept the MQ license
+  && ./mqlicense.sh -text_only -accept \
+  # Install MQ using the RPM packages (Order of packages are important since we're using the --nodeps flag)
+  #&& rpm -ivh --force-debian $MQ_PACKAGES \
+  && rpm -ivh --force-debian --nodeps --prefix /opt/mqm MQSeriesRuntime-*.rpm \
+  && rpm -ivh --force-debian --nodeps --prefix /opt/mqm $MQ_PACKAGES \
+  # Recommended: Set the default MQ installation (makes the MQ commands available on the PATH)
+  && /opt/mqm/bin/setmqinst -p /opt/mqm -i \
+  # Clean up all the downloaded files
+  && rm -rf /tmp/mq75 \
+  # Apply any bug fixes not included in base Ubuntu or MQ image.
+  # Don't upgrade everything based on Docker best practices https://docs.docker.com/engine/userguide/eng-image/dockerfile_best-practices/#run
+  && apt-get upgrade -y libc6 \
+  # End of bug fixes
+  && rm -rf /var/lib/apt/lists/* \
+  # Optional: Update the command prompt with the MQ version
+  && echo "mq:$(dspmqver -b -f 2)" > /etc/debian_chroot \
+  && rm -rf /var/mqm \
+  # Optional: Set these values for the Bluemix Vulnerability Report
+  && sed -i 's/PASS_MAX_DAYS\t99999/PASS_MAX_DAYS\t90/' /etc/login.defs \
+  && sed -i 's/PASS_MIN_DAYS\t0/PASS_MIN_DAYS\t1/' /etc/login.defs \
+  && sed -i 's/password\t\[success=1 default=ignore\]\tpam_unix\.so obscure sha512/password\t[success=1 default=ignore]\tpam_unix.so obscure sha512 minlen=8/' /etc/pam.d/common-password
+
+COPY *.sh /usr/local/bin/
+COPY *.mqsc /etc/mqm/
+COPY admin.json /etc/mqm/
+
+COPY mq-dev-config /etc/mqm/mq-dev-config
+
+RUN chmod +x /usr/local/bin/*.sh
+
+#Copy fixpack from /fixpack directory
+COPY fixpack/* /tmp
+
+# Support the latest functional cmdlevel by default
+ENV MQ_QMGR_CMDLEVEL=802
+
+# Always use port 1414 (the Docker administrator can re-map ports at runtime)
+# Expose port 9443 for the web console
+EXPOSE 1414 9443
+
+ENV LANG=en_US.UTF-8
+
+ENTRYPOINT ["mq.sh"]
