@@ -14,7 +14,7 @@
 
 FROM ubuntu:16.04
 
-LABEL maintainer "Arthur Barr <arthur.barr@uk.ibm.com>"
+LABEL maintainer "Arthur Barr <arthur.barr@uk.ibm.com>, Rob Parker <PARROBE@uk.ibm.com>"
 
 # The URL to download the MQ installer from in tar.gz format
 ARG MQ_URL=https://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/messaging/mqadv/mqadv_dev903_ubuntu_x86-64.tar.gz
