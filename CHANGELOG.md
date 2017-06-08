@@ -1,13 +1,16 @@
 # Change log
 
-## 3.0.0 (2017-xx-xx)
+## 3.0.0 (2017-06-08)
 ### Action required
-None
+* Updated to install Ubuntu `.deb` files - Any changes to the `MQ_PACKAGES` variable will now need to use the new package names (for example, "ibmmq-web" instead of "MQSeriesWeb")
 
 ### Other notable changes
 * Updated to MQ V9.0.3
+* Migrated from `amqicdir` to new official `crtmqdir` utility
 * Restructured startup scripts
-* Removed fixed UID numbers
+* Removed fixed UID numbers for developer config
+* Use HTTPS for MQ installer download
+* Reduced image size by purging 32-bit libraries
 
 ## 2.0.0 (2017-03-11)
 ### Action required
