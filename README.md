@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/ibm-messaging/mq-docker.svg?branch=master)](https://travis-ci.org/ibm-messaging/mq-docker)
+
 # Contents
 * [Overview](#overview)
 * [Docker Hub](#docker-hub)
@@ -30,9 +32,9 @@ The image is available on Docker Hub as [`ibmcom/mq`](https://hub.docker.com/r/i
   * `cd`, `9-cd`, `9`, `latest` ([Dockerfile](https://github.com/ibm-messaging/mq-docker/blob/master/server/Dockerfile))
   * `lts`, `9-lts` ([Dockerfile](https://github.com/ibm-messaging/mq-docker/blob/mq-9-lts/Dockerfile))
   * `8` ([Dockerfile](https://github.com/ibm-messaging/mq-docker/blob/mq-8/Dockerfile))
-  
+
 # Bluemix Container Service
-This image is available on the Bluemix Container Service as a default image. 
+This image is available on the Bluemix Container Service as a default image.
 
   * `latest` ([catalog](https://console.eu-gb.bluemix.net/catalog/images/ibm-mq?env_id=ibm:yp:eu-gb))
 
@@ -220,5 +222,3 @@ For issues relating specifically to this Docker image, please use the [GitHub is
 # License
 
 The Dockerfile and associated scripts are licensed under the [Apache License 2.0](./LICENSE). IBM MQ Advanced for Developers is licensed under the IBM International License Agreement for Non-Warranted Programs. This license may be viewed from the image using the `LICENSE=view` environment variable as described above or may be found [online](http://www14.software.ibm.com/cgi-bin/weblap/lap.pl?li_formnum=L-APIG-9BUHAE). Note that this license does not permit further distribution.
-
-
