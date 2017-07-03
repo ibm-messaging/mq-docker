@@ -16,14 +16,6 @@
 
 set -e
 
-if [ -z ${MQ_QMGR_NAME+x} ]; then
-  # no ${MQ_QMGR_NAME} supplied so set Queue Manager name as the hostname
-  # However make sure we remove any characters that are not valid.
-  echo "Hostname is: $(hostname)"
-  MQ_QMGR_NAME=`echo $(hostname) | sed 's/[^a-zA-Z0-9._%/]//g'`
-fi
-echo "Setting Queue Manager name to ${MQ_QMGR_NAME}"
-
 QMGR_EXISTS=`dspmq | grep ${MQ_QMGR_NAME} > /dev/null ; echo $?`
 
 if [ ${QMGR_EXISTS} -ne 0 ]; then
