@@ -107,6 +107,14 @@ if [ ! -z ${MQ_DISABLE_WEB_CONSOLE+x} ]; then
   exit 0
 fi
 
+if [ -z ${MQ_QMGR_NAME+x} ]; then
+  # no ${MQ_QMGR_NAME} supplied so set Queue Manager name as the hostname
+  # However make sure we remove any characters that are not valid.
+  echo "Hostname is: $(hostname)"
+  MQ_QMGR_NAME=`echo $(hostname) | sed 's/[^a-zA-Z0-9._%/]//g'`
+fi
+echo "Setting Queue Manager name to ${MQ_QMGR_NAME}"
+
 echo "Starting MQ Console"
 
 MQ_INSTALLATION=`dspmqver -b -f 512`
