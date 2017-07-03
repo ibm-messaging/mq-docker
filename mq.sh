@@ -17,11 +17,11 @@
 set -e
 mq-license-check.sh
 echo "----------------------------------------"
-mq-parameter-check.sh
+source mq-parameter-check.sh
 echo "----------------------------------------"
 setup-var-mqm.sh
 echo "----------------------------------------"
-which strmqweb && setup-mqm-web.sh
+which strmqweb && source setup-mqm-web.sh
 echo "----------------------------------------"
 mq-pre-create-setup.sh
 echo "----------------------------------------"
