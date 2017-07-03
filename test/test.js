@@ -143,36 +143,30 @@ describe('MQ Docker sample', function() {
       });
     });
 
-    describe('with running container', function() {
-      let container = null;
-      this.timeout(10000);
+    describe('and no queue manager variable supplied but the hostname has invalid characters', function(){
+      let containerName="MQ-Test-QM"
+      let containerValidName="MQTestQM"
 
-      describe('and no queue manager variable supplied but the hostname has invalid characters', function(){
-        let containerName="MQ-Test-QM"
-        let containerValidName="MQTestQM"
-
-        before(function() {
-          this.timeout(20000);
-          return runContainer("-h " + containerName, true, containerValidName)
-          .then((details) => {
-            container = details;
-          });
+      before(function() {
+        this.timeout(20000);
+        return runContainer("-h " + containerName, true, containerValidName)
+        .then((details) => {
+          container = details;
         });
-        after(function() {
-          return deleteContainer(container.id);
-        });
-        it('should be using the hostname as the queue manager name without the invalid characters', function (done) {
-          exec(`docker exec ${container.id} dspmq`, function (err, stdout, stderr) {
-            if (err) throw(err);
-            if (stdout && stdout.includes(containerValidName)) {
-              // Queue manager is up, so clear the timer
-              done();
-            }
-          });
+      });
+      after(function() {
+        return deleteContainer(container.id);
+      });
+      it('should be using the hostname as the queue manager name without the invalid characters', function (done) {
+        exec(`docker exec ${container.id} dspmq`, function (err, stdout, stderr) {
+          if (err) throw(err);
+          if (stdout && stdout.includes(containerValidName)) {
+            // Queue manager is up, so clear the timer
+            done();
+          }
         });
       });
     });
-
 
     describe('and implicit volume', function() {
       before(function() {
@@ -301,7 +295,7 @@ describe('MQ Docker sample', function() {
       });
     });
 
-    // Test that we can stop and start a container without it failing. This Test
+    // Tests that we can stop and start a container without it failing. This Test
     // makes sure that the scripts we set to run on every start can be ran when
     // MQ data is already present.
     describe('and can be started multiple times', function() {
@@ -324,7 +318,7 @@ describe('MQ Docker sample', function() {
             if (err) throw err;
             let startStr = `IBM MQ Queue Manager ${QMGR_NAME} is now fully running`;
             let timer = setInterval(function() {
-              exec(`docker logs ${container.id}`, function (err, stdout, stderr) {
+              exec(`docker logs --tail 3 ${container.id}`, function (err, stdout, stderr) {
                 if (err) throw(err);
                 if (stdout && stdout.includes(startStr)) {
                   // Queue manager is up, so clear the timer
@@ -335,6 +329,40 @@ describe('MQ Docker sample', function() {
             }, 1000);
           });
         });
+      });
+    });
+    describe('and can be created multiple times with a mounted volume', function() {
+      this.timeout(20000);
+      let volumeDir = null;
+      before(function() {
+        volumeDir = fs.mkdtempSync(VOLUME_PREFIX);
+      });
+      before(function() {
+        return runContainer(`--volume ${volumeDir}:/var/mqm`)
+        .then((details) => {
+          container = details;
+        });
+      });
+
+      after(function(done) {
+        deleteContainer(container.id)
+        .then(() => {
+          exec(`rm -rf  ${volumeDir}`, function (err, stdout, stderr) {
+            if (err) throw err;
+            done();
+          });
+        });
+      });
+
+      it('should not fail', function (done) {
+        deleteContainer(container.id)
+          .then(() => {
+            runContainer(`--volume ${volumeDir}:/var/mqm`)
+            .then((details) => {
+              container = details;
+              done();
+            });
+          });
       });
     });
   });
