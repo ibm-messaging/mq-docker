@@ -1,5 +1,5 @@
 /**
-  * © Copyright IBM Corporation 2016
+  * © Copyright IBM Corporation 2016, 2017
   *
   *
   * Licensed under the Apache License, Version 2.0 (the "License");
@@ -83,13 +83,13 @@ describe('MQ Docker sample', function() {
   };
 
   // Utility function to wait for the HTTPS web interface to become available
-  let waitForWeb = function(addr, port = 9443) {
+  let waitForWeb = function(addr, port = 9443, timeout = 60000) {
     return new Promise((resolve, reject) => {
       const INTERVAL = 3000; //ms
       let count = 0;
       let timer = setInterval(() => {
         count++;
-        if ((count * INTERVAL) >= 60000) {
+        if ((count * INTERVAL) >= timeout) {
           clearInterval(timer);
           reject(new Error(`Timed out connecting to port ${port}`));
         }
@@ -164,6 +164,36 @@ describe('MQ Docker sample', function() {
             // Queue manager is up, so clear the timer
             done();
           }
+        });
+      });
+    });
+
+    describe('with the web console disabled', function() {
+      before(function() {
+        this.timeout(20000);
+        return runContainer("--env MQ_DISABLE_WEB_CONSOLE=true")
+        .then((details) => {
+          container = details;
+        });
+      });
+      after(function() {
+        return deleteContainer(container.id);
+      });
+      it('should be listening on port 1414 on the Docker network', function (done) {
+        const client = net.connect({host: container.addr, port: 1414}, () => {
+          client.on('close', done);
+          client.end();
+        });
+      });
+      // Only run this test once, as it's quite slow
+      it('should not be listening on port 9443 on the Docker network', function (done) {
+        this.timeout(120000);
+        waitForWeb(container.addr, 9443, 30000).then(() => {
+          // We connected... so errored
+          throw new Error(`Connected to port 9443 when the console should not of been running`)
+        },(err) => {
+          //We errored which means we couldn't connect, which means the console isn't running!
+          done();
         });
       });
     });
