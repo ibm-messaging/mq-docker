@@ -23,17 +23,19 @@ configure_server_xml()
   echo "<server>" >> $OUT
   echo "    <featureManager>" >> $OUT
   echo "        <feature>appSecurity-2.0</feature>" >> $OUT
+  echo "        <feature>basicAuthenticationMQ-1.0</feature>" >> $OUT
   echo "    </featureManager>" >> $OUT
   echo "    <enterpriseApplication id=\"com.ibm.mq.console\">" >> $OUT
   echo "        <application-bnd>" >> $OUT
   echo "            <security-role name=\"MQWebAdmin\">" >> $OUT
   echo "                <group name=\"MQWebUI\" realm=\"defaultRealm\"/>" >> $OUT
   echo "            </security-role>" >> $OUT
-  echo "            <security-role name=\"MQWebAdminRO\">" >> $OUT
-  echo "                <user name=\"reader\" realm=\"defaultRealm\"/>" >> $OUT
-  echo "            </security-role>" >> $OUT
-  echo "            <security-role name=\"MQWebUser\">" >> $OUT
-  echo "                <special-subject type=\"ALL_AUTHENTICATED_USERS\"/>" >> $OUT
+  echo "        </application-bnd>" >> $OUT
+  echo "    </enterpriseApplication>" >> $OUT
+  echo "    <enterpriseApplication id=\"com.ibm.mq.rest\">" >> $OUT
+  echo "        <application-bnd>" >> $OUT
+  echo "            <security-role name=\"MQWebAdmin\">" >> $OUT
+  echo "                <group name=\"MQWebUI\" realm=\"defaultRealm\"/>" >> $OUT
   echo "            </security-role>" >> $OUT
   echo "        </application-bnd>" >> $OUT
   echo "    </enterpriseApplication>" >> $OUT
