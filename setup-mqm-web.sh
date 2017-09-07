@@ -23,17 +23,19 @@ configure_server_xml()
   echo "<server>" >> $OUT
   echo "    <featureManager>" >> $OUT
   echo "        <feature>appSecurity-2.0</feature>" >> $OUT
+  echo "        <feature>basicAuthenticationMQ-1.0</feature>" >> $OUT
   echo "    </featureManager>" >> $OUT
   echo "    <enterpriseApplication id=\"com.ibm.mq.console\">" >> $OUT
   echo "        <application-bnd>" >> $OUT
   echo "            <security-role name=\"MQWebAdmin\">" >> $OUT
   echo "                <group name=\"MQWebUI\" realm=\"defaultRealm\"/>" >> $OUT
   echo "            </security-role>" >> $OUT
-  echo "            <security-role name=\"MQWebAdminRO\">" >> $OUT
-  echo "                <user name=\"reader\" realm=\"defaultRealm\"/>" >> $OUT
-  echo "            </security-role>" >> $OUT
-  echo "            <security-role name=\"MQWebUser\">" >> $OUT
-  echo "                <special-subject type=\"ALL_AUTHENTICATED_USERS\"/>" >> $OUT
+  echo "        </application-bnd>" >> $OUT
+  echo "    </enterpriseApplication>" >> $OUT
+  echo "    <enterpriseApplication id=\"com.ibm.mq.rest\">" >> $OUT
+  echo "        <application-bnd>" >> $OUT
+  echo "            <security-role name=\"MQWebAdmin\">" >> $OUT
+  echo "                <group name=\"MQWebUI\" realm=\"defaultRealm\"/>" >> $OUT
   echo "            </security-role>" >> $OUT
   echo "        </application-bnd>" >> $OUT
   echo "    </enterpriseApplication>" >> $OUT
@@ -102,39 +104,39 @@ configure_server_xml()
 
 }
 
-if [ ! -z ${MQ_DISABLE_WEB_CONSOLE+x} ]; then
-  #don't do anything
-  exit 0
-fi
+if [ -z ${MQ_DISABLE_WEB_CONSOLE+x} ]; then
+  echo "Starting MQ Console"
 
-echo "Starting MQ Console"
+  MQ_INSTALLATION=`dspmqver -b -f 512`
+  DATA_PATH=`dspmqver -b -f 4096`
+  MQ_ADMIN_NAME="admin"
+  MQ_ADMIN_PASSWORD=${MQ_ADMIN_PASSWORD:-"passw0rd"}
 
-MQ_INSTALLATION=`dspmqver -b -f 512`
-DATA_PATH=`dspmqver -b -f 4096`
-MQ_ADMIN_NAME="admin"
-MQ_ADMIN_PASSWORD=${MQ_ADMIN_PASSWORD:-"passw0rd"}
+  if [ ! -e "/tmp/webTemp" ]; then
+    mkdir -p /tmp/webTemp
+    chown mqm:mqm /tmp/webTemp
 
-if [ ! -e "/tmp/webTemp" ]; then
-  mkdir -p /tmp/webTemp
-  chown mqm:mqm /tmp/webTemp
+    configure_server_xml
+  else
+    echo "Using existing Web Server configuration."
+  fi
 
-  configure_server_xml
+  if [ ! -e "${DATA_PATH}/web/installations/${MQ_INSTALLATION}/angular.persistence/admin.json" ]; then
+    sed -i "s/<QM>/${MQ_QMGR_NAME}/g" /etc/mqm/admin.json
+    chown mqm:mqm /etc/mqm/admin.json
+    chmod 640 /etc/mqm/admin.json
+    su -c "mkdir -p ${DATA_PATH}/web/installations/${MQ_INSTALLATION}/angular.persistence" -l mqm
+    su -c "cp -PTv /etc/mqm/admin.json ${DATA_PATH}/web/installations/${MQ_INSTALLATION}/angular.persistence/admin.json" -l mqm
+  fi
+
+  #Run the server as mqm
+  su -l mqm -c "bash strmqweb &"
+  echo "MQ Console started"
+
+  # Print out the connection info
+  IPADDR="$(hostname -I | sed -e 's/[[:space:]]*$//')"
+  echo connect to \"https://$IPADDR:9443/ibmmq/console/\"
 else
-  echo "Using existing Web Server configuration."
+  # don't do anything
+  echo Skipping Web Console startup due to MQ_DISABLE_WEB_CONSOLE environment variable
 fi
-
-if [ ! -e "${DATA_PATH}/web/installations/${MQ_INSTALLATION}/angular.persistence/admin.json" ]; then
-  sed -i "s/<QM>/${MQ_QMGR_NAME}/g" /etc/mqm/admin.json
-  chown mqm:mqm /etc/mqm/admin.json
-  chmod 640 /etc/mqm/admin.json
-  su -c "mkdir -p ${DATA_PATH}/web/installations/${MQ_INSTALLATION}/angular.persistence" -l mqm
-  su -c "cp -PTv /etc/mqm/admin.json ${DATA_PATH}/web/installations/${MQ_INSTALLATION}/angular.persistence/admin.json" -l mqm
-fi
-
-#Run the server as mqm
-su -l mqm -c "bash strmqweb &"
-echo "MQ Console started"
-
-# Print out the connection info
-IPADDR="$(hostname -I | sed -e 's/[[:space:]]*$//')"
-echo connect to \"https://$IPADDR:9443/ibmmq/console/\"
