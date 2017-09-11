@@ -16,6 +16,10 @@ FROM ubuntu:16.04
 
 LABEL maintainer "Arthur Barr <arthur.barr@uk.ibm.com>, Rob Parker <PARROBE@uk.ibm.com>"
 
+LABEL "ProductID"="98102d16795c4263ad9ca075190a2d4d" \
+      "ProductName"="IBM MQ Advanced for Developers" \
+      "ProductVersion"="9.0.3"
+
 # The URL to download the MQ installer from in tar.gz format
 ARG MQ_URL=https://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/messaging/mqadv/mqadv_dev903_ubuntu_x86-64.tar.gz
 

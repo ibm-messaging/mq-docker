@@ -37,9 +37,9 @@ else
       chmod 775 ${MOUNT_DIR}
 
       if [ ! -e ${DATA_DIR} ]; then
-        su -c "mkdir -p ${DATA_DIR}" -l mqm
-        su -c "chown mqm:mqm ${DATA_DIR}" -l mqm
-        su -c "chmod 775 ${DATA_DIR}" -l mqm
+        mkdir -p ${DATA_DIR}
+        chown mqm:mqm ${DATA_DIR}
+        chmod 775 ${DATA_DIR}
       fi
 
       /opt/mqm/bin/crtmqdir -a -f
