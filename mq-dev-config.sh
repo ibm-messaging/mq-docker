@@ -105,26 +105,25 @@ MQ_APP_PASSWORD=${MQ_APP_PASSWORD:-""}
 DATA_PATH=`dspmqver -b -f 4096`
 INSTALLATION=`dspmqver -b -f 512`
 
-echo "Configuring app user"
-if ! getent group mqclient; then
-  # Group doesn't exist already
-  groupadd mqclient
-fi
-configure_os_user mqclient MQ_APP_NAME MQ_APP_PASSWORD /home/app
-
-# Set authorities to give access to qmgr, queues and topic
-su -l mqm -c "setmqaut -m ${MQ_QMGR_NAME} -t qmgr -g mqclient +connect +inq"
-su -l mqm -c "setmqaut -m ${MQ_QMGR_NAME} -n \"DEV.**\" -t queue -g mqclient +put +get +browse +inq"
-su -l mqm -c "setmqaut -m ${MQ_QMGR_NAME} -n \"DEV.**\" -t topic -g mqclient +sub +pub"
-
-echo "Configuring admin user"
-configure_os_user mqm MQ_ADMIN_NAME MQ_ADMIN_PASSWORD /home/admin
-
 if [ "${MQ_DEV}" == "true" ]; then
+  echo "Configuring app user"
+  if ! getent group mqclient; then
+    # Group doesn't exist already
+    groupadd mqclient
+  fi
+  configure_os_user mqclient MQ_APP_NAME MQ_APP_PASSWORD /home/app
+
+  # Set authorities to give access to qmgr, queues and topic
+  su -l mqm -c "setmqaut -m ${MQ_QMGR_NAME} -t qmgr -g mqclient +connect +inq"
+  su -l mqm -c "setmqaut -m ${MQ_QMGR_NAME} -n \"DEV.**\" -t queue -g mqclient +put +get +browse +inq"
+  su -l mqm -c "setmqaut -m ${MQ_QMGR_NAME} -n \"DEV.**\" -t topic -g mqclient +sub +pub"
+
+  echo "Configuring admin user"
+  configure_os_user mqm MQ_ADMIN_NAME MQ_ADMIN_PASSWORD /home/admin
+
   echo "Configuring default objects for queue manager: ${MQ_QMGR_NAME}"
   set +e
   runmqsc ${MQ_QMGR_NAME} < /etc/mqm/mq-dev-config
-  echo "ALTER CHANNEL('DEV.APP.SVRCONN') CHLTYPE(SVRCONN) MCAUSER('${MQ_APP_NAME}')" | runmqsc ${MQ_QMGR_NAME}
 
   # If client password set to "" allow users to connect to application channel without a userid
   if [ "${MQ_APP_PASSWORD}" == "" ]; then
