@@ -14,8 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-set -e
-
 MQ_QMGR_NAME=$1
 
 state()
@@ -39,6 +37,13 @@ echo "IBM MQ Queue Manager ${MQ_QMGR_NAME} is now fully running"
 until [ "`state`" != "RUNNING" ]; do
   sleep 5
 done
+
+# Check that dspmq did actually work in case something has gone seriously wrong.
+dspmq > /dev/null 2>&1
+if [ $? -ne 0 ]; then
+  echo "Error: dspmq finished with a non-zero return code"
+  exit 1
+fi
 
 # Wait until queue manager has ended before exiting
 while true; do
