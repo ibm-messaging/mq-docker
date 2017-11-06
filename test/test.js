@@ -34,7 +34,7 @@ describe('MQ Docker sample', function() {
   describe('when launching container', function () {
     this.timeout(3000);
     it('should display the license when LICENSE=view', function (done) {
-      exec(`docker run --rm --env LICENSE=view ${DOCKER_IMAGE}`, function (err, stdout, stderr) {
+      exec(`docker run --rm --env LICENSE=view ${DOCKER_IMAGE}`, {maxBuffer: 1024 * 500}, function (err, stdout, stderr) {
         assert.equal(err.code, 1);
         assert.isTrue(stdout.includes("terms"));
         done();
