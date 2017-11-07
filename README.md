@@ -29,7 +29,7 @@ Run [IBM® MQ](http://www-03.ibm.com/software/products/en/ibm-mq) in a Docker co
 # Docker Hub
 The image is available on Docker Hub as [`ibmcom/mq`](https://hub.docker.com/r/ibmcom/mq/) with the following tags:
 
-  * `cd`, `9-cd`, `9`, `latest` ([Dockerfile](https://github.com/ibm-messaging/mq-docker/blob/master/server/Dockerfile))
+  * `cd`, `9-cd`, `9`, `latest` ([Dockerfile](https://github.com/ibm-messaging/mq-docker/blob/master/Dockerfile))
   * `lts`, `9-lts` ([Dockerfile](https://github.com/ibm-messaging/mq-docker/blob/mq-9-lts/Dockerfile))
   * `8` ([Dockerfile](https://github.com/ibm-messaging/mq-docker/blob/mq-8/Dockerfile))
 
