@@ -218,7 +218,7 @@ git config --global core.autocrlf input
 ## AMQ7017: Log not available
 If you see this message in the container logs, it means that the directory being used for the container's volume doesn't use a filesystem supported by IBM MQ.  This often happens when using Docker Toolbox or boot2docker, which use `tmpfs` for the `/var` directory.  To solve this, you need to make sure the container's `/var/mqm` volume is put on a supported filesystem.  For example, with Docker Toolbox try using a directory under `/mnt/sda1`.  You can list filesystem types using the command `df -T`
 
-# Older Linux kernel versions
+## Older Linux kernel versions
 MQ works best if you have a Linux kernel version of V3.16 or higher (run `uname -r` to check).
 
 If you have an older version, you might need to add the [`--ipc host`](https://docs.docker.com/engine/reference/run/#ipc-settings-ipc) option when you run an MQ container.  The reason for this is that IBM MQ uses shared memory, and on Linux kernels prior to V3.16, containers are usually limited to 32 MB of shared memory.  In a [change](https://git.kernel.org/cgit/linux/kernel/git/mhocko/mm.git/commit/include/uapi/linux/shm.h?id=060028bac94bf60a65415d1d55a359c3a17d5c31
