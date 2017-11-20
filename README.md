@@ -8,7 +8,7 @@
 * [Build](#build)
 * [Usage](#usage)
     * [Running with the default configuration](#running-with-the-default-configuration)
-    * [Running on Bluemix with volumes](#running-on-ibm-bluemix-with-volumes)
+    * [Running with the default configuration and a volume](#running-with-the-default-configuration-and-a-volume)
     * [Customizing the queue manager configuration](#customizing-the-queue-manager-configuration)
     * [Running MQ commands](#running-mq-commands)
     * [Installed components](#installed-components)
@@ -46,22 +46,19 @@ You need to make sure that you either have a Linux kernel version of V3.16, or e
 After extracting the code from this repository, you can build an image with the latest version of MQ using the following command:
 
 ```
-sudo docker build --tag mq .
+docker build --tag mq .
 ```
 
 # Usage
 In order to use the image, it is necessary to accept the terms of the IBM MQ license.  This is achieved by specifying the environment variable `LICENSE` equal to `accept` when running the image.  You can also view the license terms by setting this variable to `view`. Failure to set the variable will result in the termination of the container with a usage statement.  You can view the license in a different language by also setting the `LANG` environment variable.
 
-This image is primarily intended to be used as an example base image for your own MQ images.
-
 ## Running with the default configuration
-You can run a queue manager with the default configuration and a listener on port 1414 using the following command.  Note that the default configuration is locked-down from a security perspective, so you will need to customize the configuration in order to effectively use the queue manager.  For example, the following command creates and starts a queue manager called `QM1`, and maps port 1414 on the host to the MQ listener on port 1414 inside the container, as well as port 9443 on the host to the web console on port 9443 inside the container:
+You can run a queue manager with the default configuration and a listener on port 1414 using the following command.  For example, the following command creates and starts a queue manager called `QM1`, and maps port 1414 on the host to the MQ listener on port 1414 inside the container, as well as port 9443 on the host to the web console on port 9443 inside the container:
 
 ```
-sudo docker run \
+docker run \
   --env LICENSE=accept \
   --env MQ_QMGR_NAME=QM1 \
-  --volume /var/example:/mnt/mqm \
   --publish 1414:1414 \
   --publish 9443:9443 \
   --detach \
@@ -70,24 +67,33 @@ sudo docker run \
 
 Note that in this example, the name "mq" is the image tag you used in the previous build step.
 
-Also note that the filesystem for the mounted volume directory (`/var/example` in the above example) must be [supported](http://www-01.ibm.com/support/knowledgecenter/SSFKSJ_9.0.0/com.ibm.mq.pla.doc/q005820_.htm?lang=en).
-
-## Running on IBM Bluemix with volumes
-If you wish to run a queue manager with default configuration and a listener on port 1414, but using an IBM Bluemix volume to store your data you will need to mount the volume in a different directory than `/var/mqm`. When using a volume in Bluemix, special actions need to be taken in order to mount the IBM MQ data directory with the correct permissions on the volume. These actions are performed in the `setup-var-mqm.sh` script. The script is configured to look for a directory called `/mnt/mqm`, if it finds this then it will perform the special actions to create the IBM MQ data directory. When using mounting a volume to a Bluemix container you should mount the volume to the `/mnt/mqm` directory:
+## Running with the default configuration and a volume
+The above example will not persist any configuration data or messages across container runs.  In order to do this, you need to use a [volume](https://docs.docker.com/engine/admin/volumes/volumes/).  For example, you can create a volume with the following command:
 
 ```
-bx ic run \
+docker volume create qm1data
+```
+
+You can then run a queue manager using this volume as follows:
+
+```
+docker run \
   --env LICENSE=accept \
   --env MQ_QMGR_NAME=QM1 \
-  --volume /var/example:/mnt/mqm \
+  --publish 1414:1414 \
+  --publish 9443:9443 \
+  --detach \
+  --volume qm1data:/mnt/mqm \
   mq
 ```
+
+The Docker image always uses `/mnt/mqm` for MQ data, which is correctly linked for you under `/var/mqm` at runtime.  This is to handle problems with file permissions on some platforms.
 
 ## Customizing the queue manager configuration
 You can customize the configuration in several ways:
 
 1. By creating your own image and adding your own MQSC file into the `/etc/mqm` directory on the image.  This file will be run when your queue manager is created.
-2. By using [remote MQ administration](http://www-01.ibm.com/support/knowledgecenter/SSFKSJ_9.0.0/com.ibm.mq.adm.doc/q021090_.htm).  Note that this will require additional configuration as remote administration is not enabled by default.
+2. By using [remote MQ administration](http://www-01.ibm.com/support/knowledgecenter/SSFKSJ_9.0.0/com.ibm.mq.adm.doc/q021090_.htm), via an MQ command server, the MQ HTTP APIs, or using a tool such as the MQ web console or MQ Explorer.
 
 Note that a listener is always created on port 1414 inside the container.  This port can be mapped to any port on the Docker host.
 
@@ -115,7 +121,7 @@ REFRESH SECURITY TYPE(CONNAUTH)
 It is recommended that you configure MQ in your own custom image.  However, you may need to run MQ commands directly inside the process space of the container.  To run a command against a running queue manager, you can use `docker exec`, for example:
 
 ```
-sudo docker exec \
+docker exec \
   --tty \
   --interactive \
   ${CONTAINER_ID} \
@@ -127,11 +133,11 @@ Using this technique, you can have full control over all aspects of the MQ insta
 
 ## Installed components
 
-This image includes the core MQ server, Java, language packs, and GSKit.  Other features (except the client) are not currently supported running in Docker.  See the [MQ documentation](http://www.ibm.com/support/knowledgecenter/en/SSFKSJ_9.0.0/com.ibm.mq.ins.doc/q008350_.htm) for details of which RPMs to choose.
+This image includes the core MQ server, Java, language packs, and GSKit.  This can be configured by setting the `MQ_PACKAGES` [Docker build argument](https://docs.docker.com/engine/reference/commandline/build/#set-build-time-variables-build-arg).
 
 ## MQ Developer Defaults
 
-This image includes the MQ Developer defaults scripts which are automatically ran during Queue Manager startup. This configures your Queue Manager with a set of default objects that you can use to quickly get started developing with IBM MQ. If you do not want the default objects to be created you can set the `MQ_DEV` environment variable to `false`.
+This image includes the MQ Developer defaults scripts which are automatically run during Queue Manager startup. This configures your Queue Manager with a set of default objects that you can use to quickly get started developing with IBM MQ. If you do not want the default objects to be created you can set the `MQ_DEV` environment variable to `false`.
 
 #### Users
 **Userid:**   admin
@@ -180,7 +186,7 @@ By default the image will start the IBM MQ Web Console that allows you to admini
 
 When you navigate to this page you may be presented with a security exception warning. This happens because, by default, the web console creates a self-signed certificate to use for the HTTPS operations. This certificate is not trusted by your browser and has an incorrect distinguished name.
 
-If you chose to accept the security warning, you will be presented with the login menu for the IBM MQ Web Console. The default login for the console is:
+If you choose to accept the security warning, you will be presented with the login menu for the IBM MQ Web Console. The default login for the console is:
 
 * **User:** admin
 * **Password:** passw0rd
