@@ -18,10 +18,10 @@ LABEL maintainer "Arthur Barr <arthur.barr@uk.ibm.com>, Rob Parker <PARROBE@uk.i
 
 LABEL "ProductID"="98102d16795c4263ad9ca075190a2d4d" \
       "ProductName"="IBM MQ Advanced for Developers" \
-      "ProductVersion"="9.0.3"
+      "ProductVersion"="9.0.4"
 
 # The URL to download the MQ installer from in tar.gz format
-ARG MQ_URL=https://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/messaging/mqadv/mqadv_dev903_ubuntu_x86-64.tar.gz
+ARG MQ_URL=https://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/messaging/mqadv/mqadv_dev904_ubuntu_x86-64.tar.gz
 
 # The MQ packages to install
 ARG MQ_PACKAGES="ibmmq-server ibmmq-java ibmmq-jre ibmmq-gskit ibmmq-web ibmmq-msg-.*"
@@ -49,18 +49,22 @@ RUN export DEBIAN_FRONTEND=noninteractive \
     tar \
     util-linux \
   # Download and extract the MQ installation files
-  && mkdir -p /tmp/mq \
-  && cd /tmp/mq \
+  && export DIR_EXTRACT=/tmp/mq \
+  && mkdir -p ${DIR_EXTRACT} \ 
+  && cd ${DIR_EXTRACT} \
   && curl -LO $MQ_URL \
   && tar -zxvf ./*.tar.gz \
   # Recommended: Create the mqm user ID with a fixed UID and group, so that the file permissions work between different images
   && groupadd --gid 1000 mqm \
   && useradd --uid 1000 --gid mqm mqm \
   && usermod -G mqm root \
-  && cd /tmp/mq/DebianMQServer \
+  # Find directory containing .deb files
+  && export DIR_DEB=$(find ${DIR_EXTRACT} -name "*.deb" -printf "%h\n" | sort -u | head -1) \
+  # Find location of mqlicense.sh
+  && export MQLICENSE=$(find ${DIR_EXTRACT} -name "mqlicense.sh") \
   # Accept the MQ license
-  && ./mqlicense.sh -text_only -accept \
-  && echo "deb [trusted=yes] file:/tmp/mq/DebianMQServer ./" > /etc/apt/sources.list.d/IBM_MQ.list \
+  && ${MQLICENSE} -text_only -accept \
+  && echo "deb [trusted=yes] file:${DIR_DEB} ./" > /etc/apt/sources.list.d/IBM_MQ.list \
   # Install MQ using the DEB packages
   && apt-get update \
   && apt-get install -y $MQ_PACKAGES \
@@ -73,7 +77,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
   && /opt/mqm/bin/setmqinst -p /opt/mqm -i \
   # Clean up all the downloaded files
   && rm -f /etc/apt/sources.list.d/IBM_MQ.list \
-  && rm -rf /tmp/mq \
+  && rm -rf ${DIR_EXTRACT} \
   # Apply any bug fixes not included in base Ubuntu or MQ image.
   # Don't upgrade everything based on Docker best practices https://docs.docker.com/engine/userguide/eng-image/dockerfile_best-practices/#run
   && apt-get upgrade -y libkrb5-26-heimdal \
