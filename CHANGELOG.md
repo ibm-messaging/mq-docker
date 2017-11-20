@@ -1,5 +1,8 @@
 # Change log
 
+## 3.1.0 (2017-11-20)
+* Updated to MQ V9.0.4
+
 ## 3.0.0 (2017-06-08)
 ### Action required
 * Updated to install Ubuntu `.deb` files - Any changes to the `MQ_PACKAGES` variable will now need to use the new package names (for example, "ibmmq-web" instead of "MQSeriesWeb")
