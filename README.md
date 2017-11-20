@@ -59,10 +59,8 @@ docker run \
   --publish 1414:1414 \
   --publish 9443:9443 \
   --detach \
-  mq
+  ibmcom/mq
 ```
-
-Note that in this example, the name "mq" is the image tag you used in the previous build step.
 
 ## Running with the default configuration and a volume
 The above example will not persist any configuration data or messages across container runs.  In order to do this, you need to use a [volume](https://docs.docker.com/engine/admin/volumes/volumes/).  For example, you can create a volume with the following command:
@@ -81,7 +79,7 @@ docker run \
   --publish 9443:9443 \
   --detach \
   --volume qm1data:/mnt/mqm \
-  mq
+  ibmcom/mq
 ```
 
 The Docker image always uses `/mnt/mqm` for MQ data, which is correctly linked for you under `/var/mqm` at runtime.  This is to handle problems with file permissions on some platforms.
@@ -97,7 +95,7 @@ Note that a listener is always created on port 1414 inside the container.  This 
 The following is an *example* `Dockerfile` for creating your own pre-configured image, which adds a custom `config.mqsc` and an administrative user `alice`.  Note that it is not normally recommended to include passwords in this way:
 
 ```dockerfile
-FROM mq
+FROM ibmcom/mq
 RUN useradd alice -G mqm && \
     echo alice:passw0rd | chpasswd
 COPY 20-config.mqsc /etc/mqm/
