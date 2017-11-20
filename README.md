@@ -3,8 +3,8 @@
 # Contents
 * [Overview](#overview)
 * [Docker Hub](#docker-hub)
-* [Bluemix Container Service](#bluemix-container-service)
-* [Preparing your Docker host](#preparing-your-docker-host)
+* [Docker Store](#docker-store)
+* [IBM Cloud Container Service](#ibm-cloud-container-service)
 * [Build](#build)
 * [Usage](#usage)
     * [Running with the default configuration](#running-with-the-default-configuration)
@@ -27,20 +27,17 @@
 Run [IBM® MQ](http://www-03.ibm.com/software/products/en/ibm-mq) in a Docker container.  By default, the supplied Dockerfile runs [IBM MQ for Developers](http://www-03.ibm.com/software/products/en/ibm-mq-advanced-for-developers), but also works for IBM MQ.  The source can be found on the [ibm-messaging GitHub](http://github.com/ibm-messaging/mq-docker).  There's also a short [demo video](https://www.youtube.com/watch?v=BoomAVqk0cI) available.
 
 # Docker Hub
-The image is available on Docker Hub as [`ibmcom/mq`](https://hub.docker.com/r/ibmcom/mq/) with the following tags:
+A pre-built version of this image is available on Docker Hub as [`ibmcom/mq`](https://hub.docker.com/r/ibmcom/mq/) with the following tags:
 
   * `cd`, `9-cd`, `9`, `latest` ([Dockerfile](https://github.com/ibm-messaging/mq-docker/blob/master/Dockerfile))
   * `lts`, `9-lts` ([Dockerfile](https://github.com/ibm-messaging/mq-docker/blob/mq-9-lts/Dockerfile))
   * `8` ([Dockerfile](https://github.com/ibm-messaging/mq-docker/blob/mq-8/Dockerfile))
 
-# Bluemix Container Service
-This image is available on the Bluemix Container Service as a default image.
+# Docker Store
+A pre-built version of this image is available on [Docker Store](https://store.docker.com/images/ibm-mq-advanced).
 
-  * `latest` ([catalog](https://console.eu-gb.bluemix.net/catalog/images/ibm-mq?env_id=ibm:yp:eu-gb))
-
-# Preparing your Docker host
-You need to make sure that you either have a Linux kernel version of V3.16, or else you need to add the [`--ipc host`](https://docs.docker.com/engine/reference/run/#ipc-settings-ipc) option when you run an MQ container.  The reason for this is that IBM MQ uses shared memory, and on Linux kernels prior to V3.16, containers are usually limited to 32 MB of shared memory.  In a [change](https://git.kernel.org/cgit/linux/kernel/git/mhocko/mm.git/commit/include/uapi/linux/shm.h?id=060028bac94bf60a65415d1d55a359c3a17d5c31
-) to Linux kernel V3.16, the hard-coded limit is greatly increased.  This kernel version is available in Ubuntu 14.04.2 onwards, Fedora V20 onwards, and boot2docker V1.2 onwards.  If you are using a host with an older kernel version, but Docker version 1.4 or newer, then you can still run MQ, but you have to give it access to the host's IPC namespace using the [`--ipc host`](https://docs.docker.com/engine/reference/run/#ipc-settings-ipc) option on `docker run`.  Note that this reduces the security isolation of your container.  Using the host's IPC namespace is a temporary workaround, and you should not attempt shared-memory connections to queue managers from outside the container.
+# IBM Cloud Container Service
+A pre-built version of this image is available on the IBM Cloud Container Registry, as an [IBM Public Repository](https://console.bluemix.net/containers-kubernetes/home/registryPublicImages).
 
 # Build
 After extracting the code from this repository, you can build an image with the latest version of MQ using the following command:
@@ -220,6 +217,12 @@ git config --global core.autocrlf input
 
 ## AMQ7017: Log not available
 If you see this message in the container logs, it means that the directory being used for the container's volume doesn't use a filesystem supported by IBM MQ.  This often happens when using Docker Toolbox or boot2docker, which use `tmpfs` for the `/var` directory.  To solve this, you need to make sure the container's `/var/mqm` volume is put on a supported filesystem.  For example, with Docker Toolbox try using a directory under `/mnt/sda1`.  You can list filesystem types using the command `df -T`
+
+# Older Linux kernel versions
+MQ works best if you have a Linux kernel version of V3.16 or higher (run `uname -r` to check).
+
+If you have an older version, you might need to add the [`--ipc host`](https://docs.docker.com/engine/reference/run/#ipc-settings-ipc) option when you run an MQ container.  The reason for this is that IBM MQ uses shared memory, and on Linux kernels prior to V3.16, containers are usually limited to 32 MB of shared memory.  In a [change](https://git.kernel.org/cgit/linux/kernel/git/mhocko/mm.git/commit/include/uapi/linux/shm.h?id=060028bac94bf60a65415d1d55a359c3a17d5c31
+) to Linux kernel V3.16, the hard-coded limit is greatly increased.  This kernel version is available in Ubuntu 14.04.2 onwards, Fedora V20 onwards, and boot2docker V1.2 onwards.  Some Linux distributions, like Red Hat Enterprise Linux, patch older kernel versions, so you might find that the patch has been applied already, even if you see a lower kernel version number.  If you are using a host with an older kernel version, then you can still run MQ, but you have to give it access to the host's IPC namespace using the [`--ipc host`](https://docs.docker.com/engine/reference/run/#ipc-settings-ipc) option on `docker run`.  Note that this reduces the security isolation of your container.
 
 # Issues and contributions
 
