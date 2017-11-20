@@ -55,8 +55,8 @@ RUN export DEBIAN_FRONTEND=noninteractive \
   && curl -LO $MQ_URL \
   && tar -zxvf ./*.tar.gz \
   # Recommended: Create the mqm user ID with a fixed UID and group, so that the file permissions work between different images
-  && groupadd --gid 1000 mqm \
-  && useradd --uid 1000 --gid mqm mqm \
+  && groupadd --system --gid 999 mqm \
+  && useradd --system --uid 999 --gid mqm mqm \
   && usermod -G mqm root \
   # Find directory containing .deb files
   && export DIR_DEB=$(find ${DIR_EXTRACT} -name "*.deb" -printf "%h\n" | sort -u | head -1) \

@@ -2,6 +2,7 @@
 
 ## 3.1.0 (2017-11-20)
 * Updated to MQ V9.0.4
+* Changed `mqm` user and group from 999 to 1000.  This is to ensure that the "system" pool of users is used, so it's less likely to clash with a real user on the host.  All files under `/mnt`, `/var`, and `/etc` will be migrated at runtime (see `setup-var-mqm.sh`)
 
 ## 3.0.0 (2017-06-08)
 ### Action required
