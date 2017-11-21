@@ -54,6 +54,12 @@ RUN export DEBIAN_FRONTEND=noninteractive \
   && cd ${DIR_EXTRACT} \
   && curl -LO $MQ_URL \
   && tar -zxvf ./*.tar.gz \
+  # Recommended: Remove packages only needed by this script
+  && apt-get purge -y \
+    ca-certificates \
+    curl \
+  # Recommended: Remove any orphaned packages
+  && apt-get autoremove -y --purge \
   # Recommended: Create the mqm user ID with a fixed UID and group, so that the file permissions work between different images
   && groupadd --system --gid 999 mqm \
   && useradd --system --uid 999 --gid mqm mqm \
@@ -80,8 +86,6 @@ RUN export DEBIAN_FRONTEND=noninteractive \
   && rm -rf ${DIR_EXTRACT} \
   # Apply any bug fixes not included in base Ubuntu or MQ image.
   # Don't upgrade everything based on Docker best practices https://docs.docker.com/engine/userguide/eng-image/dockerfile_best-practices/#run
-  && apt-get upgrade -y libkrb5-26-heimdal \
-  && apt-get upgrade -y libexpat1 \
   # End of bug fixes
   && rm -rf /var/lib/apt/lists/* \
   # Optional: Update the command prompt with the MQ version
