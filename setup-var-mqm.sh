@@ -18,6 +18,14 @@
 # Then we check whether /var/mqm is a symlink. If it is we don't do anything
 # If /var/mqm does not exist then we try to find the default Bluemix mount and
 # mount it. Otherwise we give up and just create /var/mqm
+
+# WARNING: This step will migrate data ownership, so should be used with caution.
+# Migrate from older versions of this sample, which used UID/GID 1000 as mqm.
+# This was updated to UID/GID 999, to be from the "system" pool of users, so less likely to
+# clash with a real user on the host.
+find /mnt /var /etc -group 1000 | xargs chgrp 999
+find /mnt /var /etc -user 1000 | xargs chown 999
+
 if [ -d "/var/mqm/qmgrs" ]; then
   # User is probably following old instructions to mount a volume into /var/mqm
   echo "Using existing MQ Data under /var/mqm"
