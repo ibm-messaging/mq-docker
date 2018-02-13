@@ -22,6 +22,9 @@
 * [Issues and contributions](#issues-and-contributions)
 * [License](#license)
 
+# Important
+There is a [new code base](https://github.com/ibm-messaging/mq-container) for running MQ in containers.  It is highly recommended that you use this new code base if possible.  The new code base is where active development is happening, and is more robust, with better tests.  Note that the new code base does not yet have the default MQ developer configuration. 
+
 # Overview
 
 Run [IBM® MQ](http://www-03.ibm.com/software/products/en/ibm-mq) in a Docker container.  By default, the supplied Dockerfile runs [IBM MQ for Developers](http://www-03.ibm.com/software/products/en/ibm-mq-advanced-for-developers), but also works for IBM MQ.  The source can be found on the [ibm-messaging GitHub](http://github.com/ibm-messaging/mq-docker).  There's also a short [demo video](https://www.youtube.com/watch?v=BoomAVqk0cI) available.
