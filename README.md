@@ -23,7 +23,7 @@
 * [License](#license)
 
 # Important
-There is a [new code base](https://github.com/ibm-messaging/mq-container) for running MQ in containers.  It is highly recommended that you use this new code base if possible.  The new code base is where active development is happening, and is more robust, with better tests.  Note that the new code base does not yet have the default MQ developer configuration. 
+This repository is deprecated.  There is a [new code base](https://github.com/ibm-messaging/mq-container) for running MQ in containers.  It is highly recommended that you use this new code base if possible.  The new code base is where active development is happening, and is more robust, with better tests.
 
 # Overview
 
