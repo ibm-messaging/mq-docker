@@ -24,7 +24,7 @@ ARG MQ_PACKAGES="MQSeriesRuntime-*.rpm MQSeriesServer-*.rpm MQSeriesMsg*.rpm MQS
 
 RUN export DEBIAN_FRONTEND=noninteractive \
   # Optional: Update the command prompt
-  && echo "mq:9.0" > /etc/debian_chroot \
+  && echo "mq:8.0" > /etc/debian_chroot \
   # Install additional packages required by MQ, this install process and the runtime scripts
   && apt-get update -y \
   && apt-get install -y --no-install-recommends \
