@@ -46,7 +46,7 @@ A pre-built version of this image is available on the IBM Cloud Container Regist
 After extracting the code from this repository, you can build an image with the latest version of MQ using the following command:
 
 ```
-docker build --tag mq .
+docker build --tag ibmcom/mq .
 ```
 
 # Usage
