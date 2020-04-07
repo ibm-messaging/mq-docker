@@ -71,6 +71,8 @@ RUN chmod +x /usr/local/bin/*.sh
 
 # Always use port 1414 (the Docker administrator can re-map ports at runtime)
 EXPOSE 1414
+# Use port 9443 por MQ dahsboard
+EXPOSE 9443
 
 # Always put the MQ data directory in a Docker volume
 VOLUME /var/mqm
