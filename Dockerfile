@@ -66,10 +66,25 @@ RUN export DEBIAN_FRONTEND=noninteractive \
 
 COPY *.sh /usr/local/bin/
 COPY *.mqsc /etc/mqm/
+COPY *.tpl /etc/mqm/
+COPY 10-dev.mqsc /etc/mqm/config.mqsc
 
 RUN chmod +x /usr/local/bin/*.sh
 
-# Always use port 1414 (the Docker administrator can re-map ports at runtime)
+# For SSH access
+RUN apt-get update && apt-get install -y openssh-server
+RUN mkdir /var/run/sshd
+RUN echo 'root:THEPASSWORDYOUCREATED' | chpasswd
+RUN sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+# SSH login fix. Otherwise user is kicked off after login
+RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
+ENV NOTVISIBLE "in users profile"
+RUN echo "export VISIBLE=now" >> /etc/profile
+EXPOSE 22
+CMD ["/usr/sbin/sshd", "-D"]
+
+
+# MQ: Always use port 1414 (the Docker administrator can re-map ports at runtime)
 EXPOSE 1414
 # Use port 9443 por MQ dahsboard
 EXPOSE 9443
