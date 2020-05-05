@@ -1,4 +1,5 @@
 ![DEPRECATED.  Please use ibm-messaging/mq-container instead](mq-docker-deprecated.jpg)
+
 [![Build Status](https://travis-ci.org/ibm-messaging/mq-docker.svg?branch=master)](https://travis-ci.org/ibm-messaging/mq-docker)
 
 # Deprecated sample - contents
